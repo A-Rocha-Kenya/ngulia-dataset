@@ -14,7 +14,7 @@ A species absent from a recorded date can be treated as zero only if that date m
 
 `ringing_happened` is `TRUE` when the selected count source has a positive **non-swallow/martin** total. Targeted swallow and martin catches remain in `all_birds_ringed` and `swallow_birds_ringed` but are excluded from `total_birds_ringed`. A date with only those targeted catches can therefore have recorded birds while `ringing_happened` is `FALSE`.
 
-`effort_status` distinguishes documented operation, operation inferred from positive catch, documented non-operation, conflicts, and unknown dates. The underlying evidence comes from daily metadata and the source-linked [`operations_history.csv`](../config/daily_covariates/operations_history.csv). It is not a measure of net-hours, net length, or processing capacity. Broad historical periods in the operations register are context; they are not filled into every day.
+`effort_status` distinguishes documented operation, operation inferred from positive catch, documented non-operation, conflicts, and unknown dates. The underlying evidence comes from daily metadata and reviewed operational evidence maintained in the project repository. It is not a measure of net-hours, net length, or processing capacity. Broad historical periods are context; they are not filled into every day.
 
 ## Catch is an observation process
 
@@ -26,13 +26,13 @@ The selected daily count source may also differ from the individual ring-event t
 
 ERA5 supplies regional weather summaries for 00:00–08:00 East Africa Time; it does not directly observe mist at the lodge. The three `mist_probability_*` fields combine direct classifications where available with an ERA5-calibrated model elsewhere. Probabilities are estimates, not three independent observations.
 
-DJP metadata, annual reports, diaries, and the operations register differ in precision. Reviewed daily corrections are applied to canonical fields, while raw `djp_*` fields remain available. Absence of a report entry does not mean normal operation, no playback, or no rain. Specific dated corrections and unresolved conflicts are retained in `operations_history.csv`.
+DJP metadata, annual reports, diaries, and other operational sources differ in precision. Reviewed daily corrections are applied to canonical fields, while raw `djp_*` fields remain available. Absence of a report entry does not mean normal operation, no playback, or no rain. Specific dated corrections and unresolved conflicts are documented in the project repository.
 
 ## Recoveries and source coverage
 
 `recoveries.csv` is a manually consolidated set of identifiable movements involving Ngulia, not a complete detection history of every ringed bird. Encounter location and date precision vary by source. The canonical file retains `primary_source`, `supporting_sources`, and `curation_notes`; the narrower Zenodo export includes only the material interpretation notes. The [recovery curation guide](recoveries_canonical.md) documents the fields and remaining gaps. `06_standardize_recovery_encounters.R` updates encounter classifications in the curated file but does not reconstruct it from the original documents.
 
-Some raw workbooks, annual reports, and reference material are available only in the local ignored data tree. The Zenodo delivery files include a narrow recovery table and operations history, not the recovery source archive. Contact the project for source verification where needed.
+Some raw workbooks, annual reports, and reference material are available only in the local ignored data tree. The Zenodo delivery files include a narrow recovery table, not the recovery source archive. Contact the project for source verification where needed.
 
 ## Practical use
 
