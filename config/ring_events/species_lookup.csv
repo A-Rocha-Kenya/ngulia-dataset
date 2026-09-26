@@ -4486,8 +4486,10 @@ english,Red-necked Phalarope,272,
 english,Red-necked Spurfowl,188,
 english,Red-necked Stint,897,
 english,Red-pate Cisticola,3154,
+english,African Red-rumped Swallow,14933,Current SAFRING species
+english,European Red-rumped Swallow,14935,Post-split European species
 english,Red-rumped Swallow,962,
-scientific_name,Cecropis rufula,962,Post-split name used by explicit row-level corrections
+scientific_name,Cecropis rufula,14935,Post-split European species identified by reviewed source evidence
 english,Red-rumped Tinkerbird,1438,
 english,Red-rumped Wheatear,2684,
 english,Red-shouldered Cuckooshrike,2342,
@@ -5956,7 +5958,6 @@ english_avilist,Eastern Nicator,725,
 english_avilist,Eastern Olivaceous Warbler,3278,
 english_avilist,Eastern Orphean Warbler,3398,
 english_avilist,Eastern Plantain-eater,1704,
-english_avilist,Eastern Red-rumped Swallow,962,
 english_avilist,Eastern Violet-backed Sunbird,3588,
 english_avilist,Eastern Yellow-billed Barbet,1458,
 english_avilist,Eastern Yellow-billed Hornbill,1494,
@@ -8036,6 +8037,7 @@ latin_abbreviation,CATANT,,
 latin_abbreviation,CATMAC,990,
 latin_abbreviation,CATSKU,2038,
 latin_abbreviation,CECABY,503,
+latin_abbreviation,CECRUF,14935,Post-split European species
 latin_abbreviation,CECDAU,962,
 latin_abbreviation,CECSEM,501,
 latin_abbreviation,CECSEN,500,
@@ -12921,3 +12923,7 @@ scientific_name,Zosterops silvanus,3216,
 scientific_name,Zosterops stenocricotus,3218,
 scientific_name,Zosterops vaughani,3220,
 scientific_name,Zosterops winifredae,3222,
+afring_number,14933,14933,Current SAFRING species
+afring_number,14935,14935,Current SAFRING species
+scientific_name,Cecropis melanocrissus,14933,Current African species
+latin_abbreviation,CECMEL,14933,Current African species

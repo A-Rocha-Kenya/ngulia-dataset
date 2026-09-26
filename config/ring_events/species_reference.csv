@@ -924,7 +924,7 @@ afring_number,latin_abbreviation,ngulia_number,avibase_id,common_name,scientific
 959,ALCQUA,,avibase-A376DE65,,
 960,LYBLEU,,avibase-BCA0F974,,
 961,PUFTEN,,,,
-962,CECDAU,63,avibase-F72A871F,Red-rumped Swallow,
+962,CECDAU,63,avibase-1B08050E,European/African Red-rumped Swallow,Cecropis rufula/melanocrissus
 963,HIRRUF,,,,
 964,PSAALB,,avibase-88AAE3D3,,
 965,PHYCER,,avibase-7CE29E0E,,
@@ -2638,3 +2638,5 @@ afring_number,latin_abbreviation,ngulia_number,avibase_id,common_name,scientific
 10002,DAMX R,,,,
 10003,CAIMOS,,avibase-8DE14046,,
 14189,MILMIG,,avibase-DB2E41A1,,
+14933,CECMEL,,avibase-91315CD4,African Red-rumped Swallow,Cecropis melanocrissus
+14935,CECRUF,,avibase-B4967714,European Red-rumped Swallow,Cecropis rufula

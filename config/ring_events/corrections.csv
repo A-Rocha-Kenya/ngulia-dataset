@@ -1,8 +1,8 @@
 source_file,source_sheet,source_row,source_row_end,field,corrected_value,note
 2009.xls,Sheet1,7035,,species_label_raw,Cecropis rufula,Source race/form "rufula" identifies this individual as European Red-rumped Swallow under the post-split taxonomy.
-2009.xls,Sheet1,7035,,note_raw,rufula,Standardize the row-specific post-split taxon marker before species processing.
+2009.xls,Sheet1,7035,,species_ngulia_raw,,Clear the historical Ngulia code 63 so the corrected European species label maps to SAFRING code 14935.
 2022.xlsx,2022 All Pal Data,4457,,species_label_raw,Cecropis rufula,Source note "European" identifies this individual as European Red-rumped Swallow under the post-split taxonomy.
-2022.xlsx,2022 All Pal Data,4457,,note_raw,rufula,Standardize the row-specific post-split taxon marker before species processing.
+2022.xlsx,2022 All Pal Data,4457,,species_no_raw,,Clear the historical AFRING code 962 so the corrected European species label maps to SAFRING code 14935.
 1991_B.xls,Sheet1,149,,day_raw,12,
 1994.xls,94 combined,8568,,day_raw,6,
 1996.xls,Sheet1,80,,month_raw,11,
