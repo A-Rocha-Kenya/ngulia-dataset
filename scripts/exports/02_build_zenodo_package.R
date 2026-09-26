@@ -14,7 +14,21 @@ source_files <- vapply(metadata$files, \(file) {
   here::here(if (!is.null(file$path)) file$path else file.path("data", "04_curated", file$name))
 }, character(1))
 file_names <- vapply(metadata$files, `[[`, character(1), "name")
-stopifnot(all(file.copy(source_files, file.path(output_dir, file_names), overwrite = TRUE)))
+other_files <- file_names != "recoveries.csv"
+stopifnot(all(file.copy(source_files[other_files], file.path(output_dir, file_names[other_files]), overwrite = TRUE)))
+
+# Publish the interpretable recovery fields; retain source evidence in the curated file.
+recovery_columns <- c(
+  "avibase_id", "common_name", "ring_scheme", "ring_number", "ringing_age_code",
+  "direction", "ringing_date", "encounter_date_edtf", "report_date",
+  "other_site", "other_region", "other_country", "other_latitude", "other_longitude",
+  "encounter_type", "encounter_condition", "mortality_cause_class", "curation_notes"
+)
+recoveries <- readr::read_csv(
+  source_files[file_names == "recoveries.csv"], show_col_types = FALSE,
+  col_types = readr::cols(.default = readr::col_character(), other_latitude = readr::col_double(), other_longitude = readr::col_double())
+)
+readr::write_csv(dplyr::select(recoveries, dplyr::all_of(recovery_columns)), file.path(output_dir, "recoveries.csv"), na = "")
 
 # Archive the definitions and limits used for this dataset version --------
 
@@ -34,8 +48,8 @@ dictionary_lines <- c(
 dictionary_lines <- dictionary_lines[!grepl("^Better dated records|^Detailed interpretation limits and analysis assumptions", dictionary_lines)]
 dictionary <- paste(dictionary_lines, collapse = "\n")
 dictionary <- sub(
-  "The first four files are in `data/04_curated/`. The Zenodo deposit also includes the source-linked operations register from `config/daily_covariates/`.",
-  "The four curated tables and the source-linked operations register are included in this deposit.",
+  "The first four files have canonical versions in `data/04_curated/`; the Zenodo `recoveries.csv` is a narrower view of its canonical version. The deposit also includes the source-linked operations register from `config/daily_covariates/`.",
+  "The four public tables and the source-linked operations register are included in this deposit; the recovery table is a narrower view of the repository's canonical file.",
   dictionary,
   fixed = TRUE
 )

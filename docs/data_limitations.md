@@ -30,9 +30,9 @@ DJP metadata, annual reports, diaries, and the operations register differ in pre
 
 ## Recoveries and source coverage
 
-`recoveries.csv` is a manually consolidated set of identifiable movements involving Ngulia, not a complete detection history of every ringed bird. Encounter location and date precision vary by source; `primary_source`, `supporting_sources`, and `curation_notes` retain that context. `06_standardize_recovery_encounters.R` updates classifications in the curated file but does not reconstruct it from the original documents.
+`recoveries.csv` is a manually consolidated set of identifiable movements involving Ngulia, not a complete detection history of every ringed bird. Encounter location and date precision vary by source. The canonical file retains `primary_source`, `supporting_sources`, and `curation_notes`; the narrower Zenodo export includes only the material interpretation notes. The [recovery curation guide](recoveries_canonical.md) documents the fields and remaining gaps. `06_standardize_recovery_encounters.R` updates encounter classifications in the curated file but does not reconstruct it from the original documents.
 
-Some raw workbooks, annual reports, and reference material are available only in the local ignored data tree. The Zenodo delivery files include the curated tables and operations history, not the source archive. Readers should use the exported provenance fields and contact the project for source verification where needed.
+Some raw workbooks, annual reports, and reference material are available only in the local ignored data tree. The Zenodo delivery files include a narrow recovery table and operations history, not the recovery source archive. Contact the project for source verification where needed.
 
 ## Practical use
 

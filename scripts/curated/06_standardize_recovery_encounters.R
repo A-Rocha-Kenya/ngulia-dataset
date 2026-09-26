@@ -9,7 +9,7 @@ recoveries_path <- file.path(project_dir, "data", "04_curated", "recoveries.csv"
 
 recoveries <- read_csv(recoveries_path, show_col_types = FALSE)
 
-# Standardize mortality classification --------------------------------------
+# Standardize encounter classifications ------------------------------------
 
 recoveries <- recoveries |>
   mutate(

@@ -7,7 +7,7 @@ This archive contains 5 UTF-8 CSV files with header rows. Empty cells mean a val
 | `ring_events.csv` | One cleaned ringing event per row, including biometrics, mapped ringer name, and moult fields when recorded. |
 | `daily_counts.csv` | Positive species-day counts from the selected source. |
 | `daily_coverage.csv` | Canonical daily catch, coverage/effort evidence, observed metadata, calibrated mist probability, and ERA5 weather. |
-| `recoveries.csv` | Curated recovery and control movements involving Ngulia, with event-level provenance. |
+| `recoveries.csv` | Curated recovery and control movements involving Ngulia, with standardized dates, locations, and encounter outcomes. |
 | `operations_history.csv` | Source- and page-linked historical operations states and events; broad periods remain contextual rather than imputed daily measurements. |
 
 ## How the tables relate

@@ -1,18 +1,18 @@
 name: Report a bird recovery
-description: Submit a ring recovery or control involving Ngulia
+description: Submit a dated recovery or control involving Ngulia
 title: "Recovery: [ring number]"
 labels: [recovery]
 body:
   - type: markdown
     attributes:
       value: |
-        Thank you for reporting a recovery. Please enter information exactly as it appears in the notification or source document. Leave a field blank if it is not known.
+        Please report one encounter per issue and use the dates and location on the original notification. Dates must be exact calendar dates in YYYY-MM-DD format. Attach or link the notification so the record can be checked. Do not estimate coordinates from a place name.
 
   - type: input
     id: species
     attributes:
       label: Species
-      description: Common name, scientific name, or both as shown in the record.
+      description: Common or scientific name as shown in the notification. The project will standardize the name.
       placeholder: e.g. Marsh Warbler / Acrocephalus palustris
     validations:
       required: true
@@ -22,7 +22,7 @@ body:
     attributes:
       label: Ring scheme or ringing centre
       description: The organisation or country printed on the ring or notification.
-      placeholder: e.g. Kenya, Stockholm, BTO
+      placeholder: e.g. Nairobi, Stockholm, BTO
     validations:
       required: true
 
@@ -46,73 +46,85 @@ body:
       required: true
 
   - type: input
-    id: encounter_date
+    id: ringing_date
     attributes:
-      label: Encounter date
-      description: Date the bird was found, seen, controlled, or recaptured. Use YYYY-MM-DD if known; otherwise enter the date exactly as reported.
-      placeholder: e.g. 2026-03-14, March 2026, or unknown
-
-  - type: input
-    id: report_date
-    attributes:
-      label: Report date, if encounter date is unknown
-      description: Date the recovery notification or letter was issued.
-      placeholder: e.g. 2026-04-02
-
-  - type: input
-    id: locality
-    attributes:
-      label: Location outside Ngulia
-      description: Locality, town, site, or best available place name.
+      label: Ringing date
+      description: Exact date on the ringing record, in YYYY-MM-DD format.
+      placeholder: e.g. 2025-12-07
     validations:
       required: true
 
   - type: input
-    id: country
+    id: encounter_date
+    attributes:
+      label: Encounter date
+      description: Exact date the bird was found, seen, controlled, or recaptured, in YYYY-MM-DD format.
+      placeholder: e.g. 2026-03-14
+    validations:
+      required: true
+
+  - type: input
+    id: other_site
+    attributes:
+      label: Location outside Ngulia
+      description: Locality, town, or named site as reported in the notification.
+    validations:
+      required: true
+
+  - type: input
+    id: other_region
+    attributes:
+      label: Region outside Ngulia, if reported
+      description: Province, district, state, or similar region.
+
+  - type: input
+    id: other_country
     attributes:
       label: Country outside Ngulia
     validations:
       required: true
 
   - type: input
-    id: coordinates
+    id: other_latitude
     attributes:
-      label: Coordinates, if available
-      description: Latitude and longitude in decimal degrees, if supplied by the source.
-      placeholder: e.g. -1.2864, 36.8172
+      label: Latitude outside Ngulia, if measured or reported
+      description: Decimal degrees from the source; negative values are south. Leave blank if unavailable.
+      placeholder: e.g. -1.2864
+
+  - type: input
+    id: other_longitude
+    attributes:
+      label: Longitude outside Ngulia, if measured or reported
+      description: Decimal degrees from the source; negative values are west. Leave blank if unavailable.
+      placeholder: e.g. 36.8172
 
   - type: dropdown
-    id: encounter_method
+    id: encounter_outcome
     attributes:
-      label: How was the bird encountered?
+      label: Encounter outcome
       options:
-        - Controlled or recaptured by a ringer
+        - Controlled or recaptured alive by a ringer
         - Found or observed alive
-        - Found dead
-        - Caught by a person
-        - Other or unknown
+        - Found dead or killed
     validations:
       required: true
 
-  - type: dropdown
-    id: condition
+  - type: input
+    id: ringing_age_code
     attributes:
-      label: Bird's condition at encounter
-      options:
-        - Alive
-        - Dead
-        - Unknown
-    validations:
-      required: true
+      label: EURING age code at ringing, if reported
+      description: Copy the code from the ringing record; do not infer age from the date.
 
   - type: textarea
     id: circumstances
     attributes:
-      label: Further circumstances, if reported
-      description: Copy any useful source wording, such as hit a building, caught by cat, or released after control.
+      label: Encounter circumstances, if reported
+      description: Include any cause of death, such as collision, hunting, or predation.
 
   - type: textarea
     id: source
     attributes:
-      label: Additional information, source text, or evidence (optional)
-      description: Paste the full recovery notification or any other useful details, including biometrics, age, sex, measurements, or notes. You may also attach a notification, photo, or PDF, or paste a link.
+      label: Source notification or evidence
+      description: Attach the notification, paste its text, or provide a link. Include coordinate provenance if coordinates were supplied.
+    validations:
+      required: true

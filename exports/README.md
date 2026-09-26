@@ -5,7 +5,7 @@ This folder holds regenerable delivery files. The folder README and both Zenodo 
 | Folder | Contents |
 | --- | --- |
 | `website/` | JSON files consumed by the separate Ngulia website. |
-| `zenodo/` | Five dataset CSVs, a compact README, and a versioned data dictionary, ready to upload from this folder. The builder overwrites these files. |
+| `zenodo/` | Five dataset CSVs, including a narrow recovery view, a compact README, and a versioned data dictionary, ready to upload from this folder. The builder overwrites these files. |
 | `gbif/` | Darwin Core Archive and its event, occurrence, measurement, and metadata files. |
 
 ## Build and review
@@ -33,6 +33,8 @@ A local export file or an identifier in metadata does not establish that a publi
 ## Website export
 
 `01_build_website_exports.R` reads curated daily counts, the manually curated recovery table, and taxonomy mappings, then writes JSON to `website/`. For local syncing, point the website preprocessing configuration to `exports/website/`.
+
+The local recovery outputs are [`website/recoveries.json`](website/recoveries.json) for the dashboard and [`zenodo/recoveries.csv`](zenodo/recoveries.csv) for the data package. Both were rebuilt from the 269-row canonical table after the September 2026 duplicate review; generated files are excluded from Git.
 
 ## GBIF archive
 

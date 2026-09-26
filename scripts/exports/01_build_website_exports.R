@@ -611,7 +611,7 @@ recoveries_table <- read_csv(
 
 recoveries_items <- pmap(
   recoveries_table,
-  function(recovery_id, direction, encounter_type, avibase_id, common_name, ring_scheme, ring_number, ringing_date, ringing_date_precision, encounter_date, encounter_date_precision, report_date, other_site, other_region, other_country, other_latitude, other_longitude, coordinate_source, encounter_method, encounter_condition, mortality_cause_class, duration_days, distance_km, curation_status, curation_notes, ...) {
+  function(recovery_id, direction, encounter_type, avibase_id, common_name, ring_scheme, ring_number, ringing_date, encounter_date_edtf, report_date, other_site, other_region, other_country, other_latitude, other_longitude, coordinate_source, encounter_method, encounter_condition, mortality_cause_class, duration_days, distance_km, curation_status, curation_notes, ...) {
     species_meta <- species_by_id_lookup[[avibase_id]] %||% list()
     from_ngulia <- direction == "from_ngulia"
 
@@ -627,15 +627,15 @@ recoveries_items <- pmap(
       ringScheme = ring_scheme,
       ringNumber = ring_number,
       ringDate = ringing_date,
-      ringDatePrecision = ringing_date_precision,
+      ringDatePrecision = if (is.na(ringing_date)) "unknown" else "day",
       ringSite = if (from_ngulia) "Ngulia" else other_site,
       ringProvince = if (from_ngulia) "Tsavo West National Park" else other_region,
       ringCountry = if (from_ngulia) "Kenya" else other_country,
       method = encounter_method,
       encounterCondition = encounter_condition,
       mortalityCauseClass = mortality_cause_class,
-      recoverDate = encounter_date,
-      recoverDatePrecision = encounter_date_precision,
+      recoverDate = encounter_date_edtf,
+      recoverDatePrecision = if (is.na(encounter_date_edtf)) "unknown" else if (grepl("/", encounter_date_edtf, fixed = TRUE)) "range" else c(`4` = "year", `7` = "month", `10` = "day")[[as.character(nchar(encounter_date_edtf))]],
       reportDate = report_date,
       recoverySite = if (from_ngulia) other_site else "Ngulia",
       recoveryProvince = if (from_ngulia) other_region else "Tsavo West National Park",
