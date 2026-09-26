@@ -14,7 +14,7 @@ source(file.path(project_dir, "scripts", "helpers", "data_paths.R"))
 source(file.path(project_dir, "scripts", "helpers", "publication_metadata.R"))
 paths <- get_data_paths(project_dir)
 
-ring_events_path <- file.path(paths$curated_dir, "ring_events.csv")
+ring_events_path <- file.path(paths$zenodo_export_dir, "ring_events.csv")
 species_reference_path <- file.path(paths$ring_events_config_dir, "species_reference.csv")
 species_lookup_path <- file.path(paths$ring_events_config_dir, "species_lookup.csv")
 output_dir <- paths$gbif_export_dir
@@ -542,11 +542,11 @@ eml <- glue(
   "    <pubDate>{format(Sys.Date(), '%Y-%m-%d')}</pubDate>\n",
   "    <language>{metadata$dataset$language}</language>\n",
   "    <abstract>\n",
-  "      <para>This GBIF resource contains confirmed daily ringing events from the Ngulia ringing project in Kenya, individual bird capture and recapture occurrences, and bird-level biometric and moult observations. It excludes daily species-count summaries, environmental covariates, and analytical products. Dataset documentation and the reproducible processing workflow are available at {xml_escape(zenodo_url)}</para>\n",
+  "      <para>This GBIF resource contains ringing-day events from the Ngulia ringing project in Kenya, individual bird capture and recapture occurrences, and bird-level biometric and moult observations. It excludes daily species-count summaries, environmental covariates, and analytical products. Dataset documentation and the reproducible processing workflow are available at {xml_escape(zenodo_url)}</para>\n",
   "    </abstract>\n",
   "    <keywordSet>\n{keywords}\n        <keywordThesaurus>None</keywordThesaurus>\n    </keywordSet>\n",
   "    <additionalInfo>\n",
-  "      <para>{xml_escape(metadata$dataset$limitations_summary)} Daily events represent dates with at least one curated individual capture. A species missing from an event must not be interpreted as biologically absent from Ngulia. Creator roles: {xml_escape(creator_roles)} Funding: {xml_escape(funding_text)}</para>\n",
+  "      <para>{xml_escape(metadata$dataset$limitations_summary)} Event dates use the curated ringing day, which assigns captures from 20:00 onward to the following day unless the source already uses ringing-day dates. Occurrence dates preserve the cleaned source date and available time; date-only values may be ringing-day labels rather than independently known capture dates. Each daily event has at least one curated individual capture. A species missing from an event must not be interpreted as biologically absent from Ngulia. Creator roles: {xml_escape(creator_roles)} Funding: {xml_escape(funding_text)}</para>\n",
   "    </additionalInfo>\n",
   "{license_xml}\n",
   "    <coverage>\n",

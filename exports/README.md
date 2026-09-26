@@ -38,4 +38,4 @@ The local recovery outputs are [`website/recoveries.json`](website/recoveries.js
 
 ## GBIF archive
 
-The GBIF export uses confirmed capture dates as the Event core, individual ringing records as the Occurrence extension, and biometric and moult observations as bird-level ExtendedMeasurementOrFact rows. Resolved `ringer_name` values become Darwin Core `recordedBy`. Daily species counts and environmental variables are excluded; the EML description links to the broader Zenodo research dataset.
+The GBIF export reads the Zenodo `ring_events.csv` generated in step 3, so its captures and corrections match the release package. It uses ringing dates as the Event core, individual ringing records as the Occurrence extension, and biometric and moult observations as bird-level ExtendedMeasurementOrFact rows. Resolved `ringer_name` values become Darwin Core `recordedBy`. Daily species counts and environmental variables are excluded; the EML description links to the broader Zenodo research dataset.
