@@ -1,4 +1,7 @@
 source_file,source_sheet,source_row,source_row_end,field,corrected_value,note
+1998.xls,Sheet1,1778,,species_label_raw,SYLCOM,The species code SYLCOM was entered in the BOOK cell beside the value 2; the SPECIES cell contains that displaced book number.
+2009.xls,Sheet1,3245,,species_ngulia_raw,1,The source label Ap and ringer code 102 agree with adjacent Ngulia species 1 records; source Ngulia number 2 is a transcription error.
+2009.xls,Sheet1,3692,,species_ngulia_raw,2,The source label Sc and ringer code 223 agree with adjacent Ngulia species 2 records; source Ngulia number 1 is a transcription error.
 2009.xls,Sheet1,7035,,species_label_raw,Cecropis rufula,Source race/form "rufula" identifies this individual as European Red-rumped Swallow under the post-split taxonomy.
 2009.xls,Sheet1,7035,,species_ngulia_raw,,Clear the historical Ngulia code 63 so the corrected European species label maps to SAFRING code 14935.
 2022.xlsx,2022 All Pal Data,4457,,species_label_raw,Cecropis rufula,Source note "European" identifies this individual as European Red-rumped Swallow under the post-split taxonomy.

@@ -1,4 +1,9 @@
 source_file,source_sheet,source_row,source_row_end,expected_pattern,replacement,warning
+1996.xls,Sheet1,7841,7940,^BL455([0-9]{2})$,BL465\1,
+1996.xls,Sheet1,7941,8039,^BL457([0-9]{2})$,BL467\1,
+2020.xlsx,Ring Data,5831,5833,^XA69([0-9]{3})$,XA68\1,
+2020.xlsx,Ring Data,5835,5861,^XA69([0-9]{3})$,XA68\1,
+2023.xlsx,2023 Ringing Data ALL books,1604,1706,^XA86([0-9]{3})$,XA85\1,
 1993.xls,1993 All,14522,14523,^B---[0-9]{2}$,,ring_number_warning=recorded ring is partial and cannot be reconstructed from the source sequence
 1995.xls,Sheet1,2865,,^BH030467$,,ring_number_warning=BH030467 has six numeric digits while the BH stock has five; the intended ring is unresolved
 1995.xls,Sheet1,4171,,^BG9222$,BG09222,
