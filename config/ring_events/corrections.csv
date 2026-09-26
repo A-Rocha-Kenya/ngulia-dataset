@@ -581,3 +581,6 @@ source_file,source_sheet,source_row,source_row_end,field,corrected_value,note
 2008_Processed.xlsx,Sheet1,2568,,species_label_raw,Unresolved source conflict: current Rufous Bush Chat; archive Coracias garrulus,Current and archived workbooks disagree on species; leave species unresolved for manual review.
 2008_Processed.xlsx,Sheet1,2569,,species_label_raw,Unresolved source conflict: current Rufous Bush Chat; archive Coracias garrulus,Current and archived workbooks disagree on species; leave species unresolved for manual review.
 2008_Processed.xlsx,Sheet1,20077,,species_label_raw,Unresolved source conflict: current Thrush Nightingale; archive Marsh Warbler,Current and archived workbooks disagree on species; leave species unresolved for manual review.
+2013.xls,Sheet1,13341,,ringer_raw,David Fletcher,David Pearson email of 2015-05-20 identifies the ringer of XA18308.
+2012.xls,Sheet1,801,,ringer_raw,Graeme Backhurst,David Pearson email of 2013-08-14 identifies the ringer of XA01698.
+2023.xlsx,2023 Ringing Data ALL books,6826,,ringNumber_raw,L31677,"Original field book, 14 Dec 2023, book 2 page 48, reads L31677; processed workbook transcribed L31877. User also checked ring photographs. See data/01_raw/external/ngulia_management_analysis/03 Data/19 Raw data - scans/2023_Ngulia_Pal_original_BK2_2023.12.14.pdf"

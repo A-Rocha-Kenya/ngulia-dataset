@@ -157,6 +157,9 @@ build_clean_output <- function(data, ringer_lookup) {
   data |>
     assign_ring_event_ids() |>
     filter(clean_required) |>
+    group_by(ringNumber) |>
+    mutate(has_ring_number_collision = n_distinct(ring_history_group_id) > 1L) |>
+    ungroup() |>
     mutate(
       ringer_name = resolve_ringer_name(
         source_file,
@@ -200,13 +203,11 @@ build_clean_output <- function(data, ringer_lookup) {
         ),
         TRUE ~ NA_character_
       ),
-      ring_reuse_note = if_else(
-        ring_number_reused,
+      ring_conflict_note = if_else(
+        has_ring_number_collision,
         paste0(
-          "ring number reused: ",
-          ring_assignment_basis,
-          " starts ",
-          ring_assignment_id
+          "ring number conflict: recorded number ", ringNumber,
+          " occurs in separate capture histories; _01/_02 suffixes are provisional pending logbook review"
         ),
         NA_character_
       ),
@@ -237,9 +238,9 @@ build_clean_output <- function(data, ringer_lookup) {
         TRUE ~ coalesce(species_issue_note, retrap_issue_note)
       ),
       issue_note = case_when(
-        !is.na(issue_note) & !is.na(ring_reuse_note) ~
-          paste(issue_note, ring_reuse_note, sep = "|"),
-        TRUE ~ coalesce(issue_note, ring_reuse_note)
+        !is.na(issue_note) & !is.na(ring_conflict_note) ~
+          paste(issue_note, ring_conflict_note, sep = "|"),
+        TRUE ~ coalesce(issue_note, ring_conflict_note)
       ),
       issue_note = case_when(
         !is.na(issue_note) & !is.na(age_issue_note) ~
@@ -252,8 +253,12 @@ build_clean_output <- function(data, ringer_lookup) {
       season,
       ringing_date = format(ringing_date, "%Y-%m-%d"),
       datetime,
-      ringNumber,
-      ring_assignment_id,
+      recorded_ring_number = if_else(has_ring_number_collision, ringNumber, NA_character_),
+      ringNumber = if_else(
+        has_ring_number_collision,
+        paste0(ringNumber, "_", str_pad(ring_history_group_number, 2L, pad = "0")),
+        ringNumber
+      ),
       ringer_name,
       afring_number = if_else(ring_species_conflict, "0", afring_number),
       age,

@@ -133,7 +133,7 @@ processed <- add_taxonomy(
     ringing_date,
     datetime,
     ringNumber,
-    ring_assignment_id,
+    recorded_ring_number,
     ringer_name,
     retrap,
     afring_number,
