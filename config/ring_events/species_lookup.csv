@@ -12927,3 +12927,7 @@ afring_number,14933,14933,Current SAFRING species
 afring_number,14935,14935,Current SAFRING species
 scientific_name,Cecropis melanocrissus,14933,Current African species
 latin_abbreviation,CECMEL,14933,Current African species
+afring_number,10030,10030,Current SAFRING hybrid taxon
+english,Hybrid Common House Martin/Barn Swallow,10030,Current SAFRING hybrid taxon
+latin_abbreviation,HRXDU,10030,Hybrid code used in DJP daily summaries
+scientific_name,Hirundo rustica x Delichon urbicum,10030,Current SAFRING hybrid taxon

@@ -1,5 +1,4 @@
 afring_number,latin_abbreviation,ngulia_number,avibase_id,common_name,scientific_name
--3,HRXDU,,avibase-64DECB63,Barn Swallow x Western House Martin (hybrid),Hirundo rustica x Delichon urbicum
 -2,ACRDUMxPAL,,avibase-D6C468F7,Marsh x Blyth's Reed Warbler (hybrid),Acrocephalus dumetorum x palustris
 -1,LANCOLXLANISA,33,avibase-9C172F06,Red-backed x Red-tailed Shrike (hybrid),Lanius collurio x phoenicuroides
 0,,0,avibase-AF0D818A,Unknown,Unknown
@@ -2637,6 +2636,7 @@ afring_number,latin_abbreviation,ngulia_number,avibase_id,common_name,scientific
 10001,KERX R,,,,
 10002,DAMX R,,,,
 10003,CAIMOS,,avibase-8DE14046,,
+10030,HRXDU,,avibase-64DECB63,Barn Swallow x Western House Martin (hybrid),Hirundo rustica x Delichon urbicum
 14189,MILMIG,,avibase-DB2E41A1,,
 14933,CECMEL,,avibase-91315CD4,African Red-rumped Swallow,Cecropis melanocrissus
 14935,CECRUF,,avibase-B4967714,European Red-rumped Swallow,Cecropis rufula
