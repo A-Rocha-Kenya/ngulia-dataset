@@ -5,7 +5,7 @@ library(readr)
 
 source_dir <- Sys.getenv("NGULIA_GEOLOCATOR_DIR", unset = here::here("data", "01_raw", "external", "geolocator"))
 output_dir <- here::here("data", "03_intermediate", "geolocator_paths")
-crosswalk_path <- here::here("config", "website", "ngulia_taxonomy_crosswalk.csv")
+crosswalk_path <- here::here("config", "taxonomy", "ngulia_taxonomy_crosswalk.csv")
 
 # This bounding box covers Kenya, Ethiopia and their immediate migration corridor.
 east_africa <- c(west = 32, east = 48, south = -5, north = 16)

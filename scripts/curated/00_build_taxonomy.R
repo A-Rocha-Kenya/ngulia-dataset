@@ -51,7 +51,7 @@ species_lookup <- read_csv(
   col_types = cols(.default = col_character())
 )
 taxonomy_crosswalk <- read_csv(
-  file.path(paths$website_config_dir, "ngulia_taxonomy_crosswalk.csv"),
+  file.path(paths$taxonomy_config_dir, "ngulia_taxonomy_crosswalk.csv"),
   col_types = cols(.default = col_character())
 )
 

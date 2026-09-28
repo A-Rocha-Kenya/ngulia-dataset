@@ -7,7 +7,7 @@ These files record how source material is interpreted. They are versioned separa
 | `ring_events/` | Import and curation of historical ringing workbooks. |
 | `daily_counts/` | Classification of targeted catches in daily context. |
 | `daily_covariates/` | Historical evidence about station operations. |
-| `website/` | Reviewed external identifiers used for taxonomy enrichment and geolocator matching. |
+| `taxonomy/` | Reviewed external identifiers used for taxonomy enrichment and geolocator matching. |
 | `publication/` | Shared metadata for citation and public data packages. |
 
 ## Files
@@ -26,7 +26,7 @@ These files record how source material is interpreted. They are versioned separa
 | [`ring_events/moult_specs.csv`](ring_events/moult_specs.csv) | Workbook-specific moult columns, feather counts, and scoring schemes. | Directs the ring-event builder when reading and standardizing moult records. |
 | [`daily_counts/targeted_capture_groups.csv`](daily_counts/targeted_capture_groups.csv) | Avibase IDs and reasons for species groups caught through targeted methods. | `01_build_daily_context.R` marks these catches separately when assembling daily evidence. |
 | [`daily_covariates/operations_history.csv`](daily_covariates/operations_history.csv) | Dated evidence about nets, lights, and other operations, with source paths, page references, and review status. | `01_build_daily_context.R` applies records with supported daily scope and retains broader historical statements as context. |
-| [`website/ngulia_taxonomy_crosswalk.csv`](website/ngulia_taxonomy_crosswalk.csv) | Links among source labels, Ngulia names, Avibase IDs, and other taxonomies, with review flags. | The taxonomy builder adds external identifiers by Avibase ID; the optional geolocator-path script also uses source-label mappings. |
+| [`taxonomy/ngulia_taxonomy_crosswalk.csv`](taxonomy/ngulia_taxonomy_crosswalk.csv) | Links among source labels, Ngulia names, Avibase IDs, and other taxonomies, with review flags. | The taxonomy builder adds external identifiers by Avibase ID; the optional geolocator-path script also uses source-label mappings. |
 | [`publication/dataset_metadata.yml`](publication/dataset_metadata.yml) | Dataset title, creators, coverage, licenses, references, and Zenodo and GBIF settings. | Citation, Zenodo-package, and GBIF-export scripts read it so those outputs use the same metadata. |
 
 The [scripts README](../scripts/README.md) explains the processing sequence, the [data README](../data/README.md) defines the exported fields, and [daily covariate evidence](../docs/daily_covariates.md) and the [exports README](../exports/README.md) provide longer context.

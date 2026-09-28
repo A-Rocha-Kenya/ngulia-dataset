@@ -5,10 +5,10 @@ Run scripts from the repository root so `here::here()` resolves this project. Th
 | Folder | Role |
 | --- | --- |
 | `curated/` | Build the canonical CSV tables from source material. |
-| `intermediate/` | Assemble daily context, model mist, and stage geolocator paths. |
+| `intermediate/` | Assemble daily context and model mist. |
 | `diagnostics/` | Inspect source reconciliation and data quality without altering curated tables. |
 | `exploration/` | Describe the dataset without fitting question-specific models. |
-| `exports/` | Build citation, website, Zenodo, and GBIF deliveries. |
+| `exports/` | Build citation, Zenodo, and GBIF deliveries. |
 | `helpers/` | Shared code sourced by runnable scripts. |
 | `setup/` | Install declared R dependencies. |
 
@@ -51,7 +51,6 @@ source("scripts/exploration/dataset_overview/00_summarize_datasets.R")
 source("scripts/exploration/dataset_overview/01_plot_daily_rings_by_season.R")
 
 # Exports -----------------------------------------------------------------
-source("scripts/exports/01_build_website_exports.R")
 source("scripts/exports/02_build_zenodo_package.R")
 source("scripts/exports/03_build_gbif_export.R")
 ```
@@ -71,11 +70,12 @@ source("scripts/exports/03_build_gbif_export.R")
 | `00_build_citation.R`                                 | Builds the GitHub README and citation file from shared metadata and authored prose.                                                                                                                                                                                  | `README.md`, `CITATION.cff`                                                 |
 | `dataset_overview/00_summarize_datasets.R`            | Creates descriptive dataset summaries. | `outputs/exploration/dataset_overview/` |
 | `dataset_overview/01_plot_daily_rings_by_season.R`    | Plots daily capture totals by day within each ringing season. | `outputs/exploration/dataset_overview/figures/daily_rings_by_season.png` |
-| `01_build_website_exports.R`                          | Creates website JSON exports.                                                                                                                                                                                                                                        | `exports/website/`                                                          |
 | `02_build_zenodo_package.R`                           | Copies five dataset CSVs, selects the 18 public recovery fields, and writes a compact file guide plus the versioned data dictionary for Zenodo.                                                                                                                                                         | `exports/zenodo/`                                                           |
 | `03_build_gbif_export.R`                              | Builds the sampling-event Darwin Core Archive with daily events, individual captures, and bird-level measurements.                                                                                                                                                   | `exports/gbif/`                                                             |
 
-The export commands prepare local files; they do not publish a Zenodo or GBIF record. Review the [QA outputs](../outputs/README.md) before building them, then follow the [exports README](../exports/README.md) for publication. `scripts/intermediate/03_extract_geolocator_paths.R` is optional website support and is not required for the five curated tables.
+Website resource generation is maintained in [ngulia-website](https://github.com/A-Rocha-Kenya/ngulia-website), whose Python preprocessing reads the Zenodo package. For local development, point its `--source-dir` option at this repository's `exports/zenodo/`.
+
+The export commands prepare local files; they do not publish a Zenodo or GBIF record. Review the [QA outputs](../outputs/README.md) before building them, then follow the [exports README](../exports/README.md) for publication. `scripts/exploration/geolocator_paths/00_extract_paths.R` is optional research exploration and is not required for the five curated tables.
 
 ## Processing and standardization
 
@@ -137,7 +137,7 @@ source("scripts/diagnostics/validate_mist_model.R")
 | Preferred count source, date convention, or season rule | Daily counts and every downstream table and export; if ring-event dates changed, start with ring events. |
 | Reviewed operations history | Daily context, mist model, daily coverage, related QA, and exports. |
 | Manually curated `recoveries.csv` | Recovery classifications, recorded-taxonomy statistics, then Zenodo and GBIF exports. Preserve the source audit. |
-| Taxonomy checklist, AviList reference, species mapping, subspecies mapping, or website taxonomy crosswalk | Full taxonomy reference, affected observations, recorded-taxonomy statistics, and exports; source identification changes also require rebuilding ring events. Optional geolocator-path extraction still uses the reviewed crosswalk. |
+| Taxonomy checklist, AviList reference, species mapping, subspecies mapping, or taxonomy crosswalk | Full taxonomy reference, affected observations, recorded-taxonomy statistics, and exports; source identification changes also require rebuilding ring events. Optional geolocator-path extraction still uses the reviewed crosswalk. |
 | Publication metadata | Citation, Zenodo package, and GBIF export; curated CSVs need no rebuild. |
 
 Record the dataset version or Git commit and curated-file checksums used by downstream analyses.

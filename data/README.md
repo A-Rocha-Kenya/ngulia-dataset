@@ -5,7 +5,7 @@ The local pipeline runs from source material to five curated CSV tables. Raw, re
 | Folder | Role |
 | --- | --- |
 | `01_raw/` | Original workbooks, count sources, weather archives, and external inputs; do not edit in place. |
-| `02_reference/` | Taxonomy, publications, reports, ranges, and supporting material. |
+| `02_reference/` | Taxonomy, publications, reports, photographs, and supporting material. |
 | `03_intermediate/` | Regenerable staging tables and machine-readable curation audits. |
 | `04_curated/` | Canonical `taxonomy.csv`, `ring_events.csv`, `daily_counts.csv`, `daily_coverage.csv`, and `recoveries.csv`. |
 
@@ -13,7 +13,7 @@ The [scripts README](../scripts/README.md) gives the build order and processing 
 
 ## Local sources and staging files
 
-The Git repository does not contain the source archive or generated CSVs. Keep the original inputs under the paths below, without editing them in place. `02_reference/` also holds publications, reports, photographs, and range material that support review or website work; those collections are not all required to build the five curated tables.
+The Git repository does not contain the source archive or generated CSVs. Keep the original inputs under the paths below, without editing them in place. `02_reference/` also holds publications, reports, and photographs that support source review; those collections are not all required to build the five curated tables. Website range assets are maintained in `ngulia-website`.
 
 | Path | Role |
 | --- | --- |
@@ -33,7 +33,7 @@ The Git repository does not contain the source archive or generated CSVs. Keep t
 | `03_intermediate/recoveries/recoveries_audit.md` | One-off consolidation and validation record for the manually curated recoveries. |
 | `04_curated/recoveries.csv` | Manually curated input to the recovery-classification script; preserve it when rebuilding. |
 
-`03_intermediate/geolocator_paths/` and some external reference collections support optional website or exploration exports. They are not inputs to the five curated tables.
+`03_intermediate/geolocator_paths/` and some external reference collections support optional research exploration. They are not inputs to the five curated tables.
 
 ## Public dataset files
 

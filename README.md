@@ -12,11 +12,11 @@ Research data and reproducible processing workflows for the Ngulia ringing proje
 
 | Folder | What to find |
 | --- | --- |
-| [data](data/README.md) | Local inputs, four curated tables, field dictionary, and staging products. |
+| [data](data/README.md) | Local inputs, five curated tables, field dictionary, and staging products. |
 | [config](config/README.md) | Reviewed source rules, historical evidence, and publication metadata. |
 | [scripts](scripts/README.md) | Build order, processing scripts, and diagnostics. |
 | [outputs](outputs/README.md) | Local QA and descriptive exploration. |
-| [exports](exports/README.md) | Website files and Zenodo/GBIF publication steps. |
+| [exports](exports/README.md) | Zenodo and GBIF files and publication steps. |
 | [assets](assets/README.md) | Reviewed figures shown in this repository. |
 | [docs](docs/README.md) | Evidence, limitations, credits, and future field proposals. |
 
