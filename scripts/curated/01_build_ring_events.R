@@ -110,12 +110,10 @@ results <- process_ring_records(
   species_lookup,
   measurement_ranges,
   ringer_lookup,
-  issues_output_path = issues_output_path,
   file_audit_output_path = file_audit_output_path,
   ringer_lookup_audit_output_path = ringer_lookup_audit_output_path,
   ringer_unmatched_output_path = ringer_unmatched_output_path,
   ring_history_audit_output_path = ring_history_audit_output_path,
-  issues_markdown_output_path = issues_markdown_output_path,
   file_specs = file_specs,
   raw_dir = raw_dir
 )
@@ -123,12 +121,28 @@ processed <- results$ring_events
 moult <- results$moult
 
 # Add species and subspecies information ----------------------------------
-processed <- add_taxonomy(
+taxonomy_results <- add_taxonomy(
   processed,
   species_reference,
   subspecies_lookup,
   taxonomy
-) |>
+)
+write_csv(taxonomy_results$audit, file.path(qa_dir, "taxonomy_note_audit.csv"), na = "")
+taxonomy_issues <- taxonomy_results$audit |>
+  filter(taxonomy_conflict) |>
+  transmute(
+    source_file, source_sheet, source_row, datetime, ringNumber,
+    issue_type = "species_subspecies_conflict", field = "species/race_form",
+    value = paste(source_avibase_id, note_avibase_id, sep = " / "),
+    detail = paste0("Recorded ", source_common_name, "; note '", note_token, "' maps to ", note_scientific_name, ". Source rows: ", source_rows),
+    action, action_detail = "Exported as Unknown with no subspecies; original identifications remain in the taxonomy note audit pending logbook review."
+  )
+issues <- bind_rows(results$issues, taxonomy_issues)
+write_csv(issues, issues_output_path, na = "")
+write_issue_markdown(issues, issues_markdown_output_path, file_specs = file_specs, raw_dir = raw_dir)
+cli_alert_info("Mapped {n_distinct(taxonomy_results$audit$ring_event_id[taxonomy_results$audit$taxonomy_conflict])} taxonomically inconsistent events to Unknown; wrote the taxonomy note audit.")
+
+processed <- taxonomy_results$ring_events |>
   select(
     ring_event_id,
     season,

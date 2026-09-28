@@ -249,6 +249,8 @@ build_clean_output <- function(data, ringer_lookup) {
       )
     ) |>
     transmute(
+      source_file, source_sheet, source_row,
+      source_rows = same_day_group_source_rows,
       ring_event_id,
       season,
       ringing_date = format(ringing_date, "%Y-%m-%d"),
@@ -402,6 +404,7 @@ process_ring_records <- function(
   list(
     ring_events = clean,
     moult = moult_results$moult,
+    issues = issues,
     ring_history_audit = ring_history_audit
   )
 }
@@ -450,22 +453,91 @@ build_subspecies_lookup <- function(processed_data, subspecies_lookup) {
 }
 
 add_taxonomy <- function(processed_data, species_reference, subspecies_lookup, taxonomy) {
-  # Keep source-note matching separate from taxonomy enrichment.
-  processed_subspecies <- processed_data |>
-    mutate(row_id = row_number(), note_token = str_split(coalesce(ring_note, ""), fixed("|"))) |>
+  # A slash identification can only be refined to one of its member species.
+  slash_members <- taxonomy |>
+    filter(category == "slash") |>
+    transmute(source_avibase_id = avibase_id, genus = word(scientific_name, 1), member_name = str_split(scientific_name, fixed("/"))) |>
+    unnest(member_name) |>
+    mutate(member_name = if_else(str_detect(member_name, " "), member_name, paste(genus, member_name))) |>
+    distinct(source_avibase_id, member_name) |>
+    mutate(slash_member = TRUE)
+
+  source_taxa <- processed_data |>
+    mutate(row_id = row_number()) |>
+    left_join(species_reference |> select(afring_number, source_avibase_id = avibase_id), by = "afring_number", na_matches = "never") |>
+    left_join(
+      taxonomy |> select(source_avibase_id = avibase_id, source_common_name = common_name, source_category = category, source_species_avibase_id = species_avibase_id),
+      by = "source_avibase_id", na_matches = "never", relationship = "many-to-one"
+    )
+
+  note_taxa <- source_taxa |>
+    mutate(note_token = str_split(coalesce(ring_note, ""), fixed("|"))) |>
     unnest(note_token, keep_empty = TRUE) |>
     mutate(note_token = str_squish(note_token)) |>
     left_join(
-      subspecies_lookup |> select(afring_number, note, subspecies_avibase_id),
+      subspecies_lookup |> select(afring_number, note, note_avibase_id = subspecies_avibase_id),
       by = c("afring_number", "note_token" = "note"), na_matches = "never"
     ) |>
-    group_by(row_id) |>
-    summarise(subspecies_avibase_id = first(na.omit(subspecies_avibase_id), default = NA_character_), .groups = "drop")
+    filter(!is.na(note_avibase_id)) |>
+    left_join(
+      taxonomy |> select(note_avibase_id = avibase_id, note_scientific_name = scientific_name, note_category = category, note_species_avibase_id = species_avibase_id),
+      by = "note_avibase_id", na_matches = "never", relationship = "many-to-one"
+    ) |>
+    left_join(
+      taxonomy |> select(note_species_avibase_id = avibase_id, note_species_scientific_name = scientific_name),
+      by = "note_species_avibase_id", na_matches = "never", relationship = "many-to-one"
+    ) |>
+    left_join(slash_members, by = c("source_avibase_id", "note_species_scientific_name" = "member_name"), na_matches = "never") |>
+    mutate(
+      note_subspecies_avibase_id = if_else(
+        note_category %in% c("subspecies", "group (monotypic)", "group (polytypic)", "form", "intergrade"),
+        note_avibase_id, NA_character_
+      ),
+      note_compatible = coalesce(
+        source_species_avibase_id == note_species_avibase_id | slash_member | source_avibase_id == "avibase-AF0D818A",
+        FALSE
+      )
+    )
 
-  processed_data |>
-    mutate(row_id = row_number()) |>
-    left_join(species_reference |> select(afring_number, avibase_id), by = "afring_number", na_matches = "never") |>
-    left_join(taxonomy |> select(avibase_id, common_name), by = "avibase_id", na_matches = "never", relationship = "many-to-one") |>
-    left_join(processed_subspecies, by = "row_id") |>
-    select(-row_id)
+  resolved_notes <- note_taxa |>
+    group_by(row_id) |>
+    summarise(
+      taxonomy_conflict = any(!is.na(note_avibase_id) & !note_compatible) |
+        n_distinct(note_species_avibase_id, na.rm = TRUE) > 1L |
+        n_distinct(note_subspecies_avibase_id, na.rm = TRUE) > 1L,
+      note_species_avibase_id = first(na.omit(note_species_avibase_id), default = NA_character_),
+      subspecies_avibase_id = first(na.omit(note_subspecies_avibase_id), default = NA_character_),
+      .groups = "drop"
+    )
+
+  resolved <- source_taxa |>
+    left_join(resolved_notes, by = "row_id") |>
+    mutate(
+      taxonomy_conflict = coalesce(taxonomy_conflict, FALSE),
+      avibase_id = case_when(
+        taxonomy_conflict ~ "avibase-AF0D818A",
+        source_category == "slash" | source_avibase_id == "avibase-AF0D818A" ~ coalesce(note_species_avibase_id, source_avibase_id),
+        TRUE ~ source_avibase_id
+      ),
+      subspecies_avibase_id = if_else(taxonomy_conflict, NA_character_, subspecies_avibase_id)
+    ) |>
+    left_join(taxonomy |> select(avibase_id, common_name), by = "avibase_id", na_matches = "never", relationship = "many-to-one")
+
+  # Retain every diagnostic note and both identifications for logbook review.
+  audit <- note_taxa |>
+    select(-note_species_avibase_id) |>
+    left_join(resolved |> select(row_id, taxonomy_conflict, avibase_id, subspecies_avibase_id), by = "row_id") |>
+    mutate(action = if_else(taxonomy_conflict, "replace_taxon_unknown", "retain_compatible_identification")) |>
+    select(
+      row_id, any_of(c("ring_event_id", "source_file", "source_sheet", "source_row", "source_rows", "datetime", "ringNumber")),
+      afring_number, source_avibase_id, source_common_name, ring_note, note_token,
+      note_avibase_id, note_scientific_name, note_compatible, taxonomy_conflict,
+      avibase_id, subspecies_avibase_id, action
+    ) |>
+    distinct()
+
+  list(
+    ring_events = resolved |> select(-row_id, -source_avibase_id, -source_common_name, -source_category, -source_species_avibase_id, -note_species_avibase_id, -taxonomy_conflict),
+    audit = audit
+  )
 }
