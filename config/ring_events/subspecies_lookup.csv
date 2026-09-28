@@ -3,7 +3,7 @@ afring_number,note,subspecies_avibase_id,n_records
 598,brown,,573
 2592,red,,349
 599,yakutensis,avibase-D3A915B5,292
-2596,hafizi,avibase-5B7A0A9B,255
+2596,hafizi,,255
 598,intermed,,183
 2288,phoen,avibase-EE7915A2,135
 598,yellow,,128
@@ -14,7 +14,7 @@ afring_number,note,subspecies_avibase_id,n_records
 371,nominate,avibase-26F25C6E,71
 597,TS,,66
 597,nts,,60
-708,kobylini,avibase-B82EBC54,59
+708,kobylini,,59
 949,TS,,51
 2288,phoen.,avibase-EE7915A2,49
 3278,NTS,,44
@@ -37,19 +37,19 @@ afring_number,note,subspecies_avibase_id,n_records
 607,N.T.,,21
 607,NT,,21
 949,nts,,20
-708,nominate,avibase-321E949B,19
+708,nominate,,19
 594,grey-brown,,18
 371,plumipes,avibase-77533CAC,17
 371,sarudnyi,avibase-8626FD08,17
 598,TS,,16
-2288,karelini,avibase-215A6FEA,15
+2288,karelini,,15
 567,familiaris,avibase-16F95D5D,15
 592,Retrap with no initials,,15
 ,,,15
 3276,nts,,14
 911,fuscus,avibase-877053DA,14
 598,ts,,13
-2288,specul.,avibase-A5FEB966,11
+2288,specul.,,11
 594,volgensis,avibase-0BE94199,11
 949,ts,,11
 3278,fts,,10
@@ -70,8 +70,8 @@ afring_number,note,subspecies_avibase_id,n_records
 598,nts,,6
 607,Retrap with no initials,,6
 2288,isabell,avibase-E40C1C33,5
-2288,speculigerus,avibase-A5FEB966,5
-2596,Hafizi,avibase-5B7A0A9B,5
+2288,speculigerus,,5
+2596,Hafizi,,5
 3276,narrow secs,,5
 3276,ts,,5
 371,nom.,avibase-26F25C6E,5
@@ -82,7 +82,7 @@ afring_number,note,subspecies_avibase_id,n_records
 598,fts,,5
 603,zarudnyi,avibase-C24BA9FB,5
 607,TS,,5
-708,coll,avibase-321E949B,5
+708,coll,,5
 2288,phoenic.,avibase-EE7915A2,4
 2592,very pale,,4
 2596,Africana,avibase-8488A94A,4
@@ -99,7 +99,7 @@ afring_number,note,subspecies_avibase_id,n_records
 2288,Isab,avibase-E40C1C33,3
 2288,isab,avibase-E40C1C33,3
 2592,SW,,3
-2596,haf,avibase-5B7A0A9B,3
+2596,haf,,3
 3276,broad secs,,3
 371,euro,avibase-26F25C6E,3
 371,grey,,3
@@ -116,7 +116,7 @@ afring_number,note,subspecies_avibase_id,n_records
 2288,phoenicea,avibase-EE7915A2,2
 2288,phoenicuriodes,avibase-EE7915A2,2
 2288,phon,avibase-EE7915A2,2
-2288,specul,avibase-A5FEB966,2
+2288,specul,,2
 2592,Pale,,2
 2592,cinnamon,,2
 2596,AF,,2
@@ -142,8 +142,8 @@ afring_number,note,subspecies_avibase_id,n_records
 689,lutea,avibase-2064577F,2
 708,Retrap with no initials,,2
 708,clear night,,2
-708,collurio,avibase-321E949B,2
-708,pallidifrons,avibase-34CC4919,2
+708,collurio,,2
+708,pallidifrons,,2
 911,nts,,2
 949,Retrap with no initials,,2
 949,bright eye,,2
@@ -164,11 +164,11 @@ afring_number,note,subspecies_avibase_id,n_records
 2288,Turs,avibase-EE7915A2,1
 2288,arenarius,avibase-20A6541A,1
 2288,buff underp.,,1
-2288,karel,avibase-215A6FEA,1
+2288,karel,,1
 2288,phoeb,avibase-EE7915A2,1
 2288,phoenicuoides,avibase-EE7915A2,1
 2288,pp w,,1
-2288,specu.,avibase-A5FEB966,1
+2288,specu.,,1
 2288,turkistan,avibase-EE7915A2,1
 2592,N.T.,,1
 2592,PALE,,1
@@ -193,7 +193,7 @@ afring_number,note,subspecies_avibase_id,n_records
 2596,africans,avibase-8488A94A,1
 2596,afriocana,avibase-8488A94A,1
 2596,golzii,avibase-6AB0EB18,1
-2596,hafisi,avibase-5B7A0A9B,1
+2596,hafisi,,1
 2596,megarhynchos,avibase-04781584,1
 2596,red,,1
 3276,Broad ss,,1
@@ -356,7 +356,7 @@ afring_number,note,subspecies_avibase_id,n_records
 708,f.bar,,1
 708,grey head,,1
 708,isabellinus,,1
-708,kobylini - spec.,avibase-B82EBC54,1
+708,kobylini - spec.,,1
 708,large spec.,,1
 708,phoen,,1
 708,phoenicuroides,,1
