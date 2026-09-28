@@ -18,6 +18,7 @@ packages <- c(
   "rlang",
   "scales",
   "stringr",
+  "testthat",
   "tidyr",
   "data.table",
   "htmltools",

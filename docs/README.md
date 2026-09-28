@@ -5,6 +5,7 @@ Start with the folder READMEs for the working pipeline: [data](../data/README.md
 ## Using the dataset
 
 - [Interpretation limits](data_limitations.md): what counts, calendar rows, effort evidence, weather, and recoveries can support.
+- [Internal daily coverage dictionary](daily_coverage_internal.md): definitions of the richer working table, distinct from the public Zenodo view.
 - [Daily covariate evidence](daily_covariates.md): how historical operations records are reviewed and applied to daily fields.
 - [Contributors and acknowledgements](contributors.md): attribution beyond the formal dataset creators.
 

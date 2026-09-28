@@ -4,17 +4,17 @@ The curated tables describe birds recorded at Ngulia and the evidence available 
 
 ## Counts and missing dates
 
-`daily_counts.csv` contains positive species-day counts. For each season, the pipeline uses DJP daily summaries if that source has rows for the season; otherwise it summarizes curated ring events. It does not choose the better-looking source separately for each day. In this version DJP supplies seasons 1969–2014 and ring events supply 2015–2023. In `daily_coverage.csv`, `daily_count_source` identifies a positive total from curated `daily_counts.csv` or a source-recorded DJP zero; it does not identify which source was selected upstream for the season. The repository generates a count-source comparison audit, which is not part of the Zenodo deposit.
+`daily_counts.csv` contains positive species-day counts. For each season, the pipeline uses DJP daily summaries if that source has rows for the season; otherwise it summarizes curated ring events. It does not choose the better-looking source separately for each day. In this version DJP supplies seasons 1969–2014 and ring events supply 2015–2023. The public `daily_coverage.csv` contains covariates and count coverage rather than bird totals. Calculate totals and taxon subsets from `daily_counts.csv`. The repository generates a count-source comparison audit, which is not part of the Zenodo deposit.
 
-A species absent from a recorded date can be treated as zero only if that date meets the coverage rule of the analysis. A date absent from `daily_counts.csv` is not a zero-catch day. The DJP daily-total cell provides a separate distinction: a numeric zero is retained as `daily_count_status = zero_in_daily_summary`; a blank remains `missing`. A source-recorded zero does not by itself prove that nets were open.
+A species absent from a recorded date can be treated as zero only if that date meets the coverage rule of the analysis. A date absent from `daily_counts.csv` is not a zero-catch day. The DJP daily-total cell provides a separate distinction: a numeric zero is retained as `count_status = recorded_zero`; a blank remains `missing`. A source-recorded zero does not by itself prove that nets were open.
 
 ## Calendar and operation evidence
 
 `season` labels the year in which an October–January season starts; the assignment uses a June 1 administrative boundary. `daily_coverage.csv` starts each season window on October 20, normally runs through January 12, and extends into later January dates when the sources do. A row in this table means the date is in the calendar scaffold, not that ringing took place.
 
-`ringing_happened` is `TRUE` when the selected count source has a positive **non-swallow/martin** total. Targeted swallow and martin catches remain in `all_birds_ringed` and `swallow_birds_ringed` but are excluded from `total_birds_ringed`. A date with only those targeted catches can therefore have recorded birds while `ringing_happened` is `FALSE`.
+`count_status = recorded_positive` includes dates on which only swallows or martins were counted. It does not apply an exclusion group. Users select taxa in `daily_counts.csv` for their analysis, including excluding targeted swallow and martin catches when appropriate.
 
-`effort_status` distinguishes documented operation, operation inferred from positive catch, documented non-operation, conflicts, and unknown dates. The underlying evidence comes from daily metadata and reviewed operational evidence maintained in the project repository. It is not a measure of net-hours, net length, or processing capacity. Broad historical periods are context; they are not filled into every day.
+`night_nets_operated`, `dawn_nets_operated`, `net_sites_observed`, and `nocturnal_playback_used` describe operation evidence from daily metadata and reviewed dated sources. Blank means unknown. These fields do not measure net-hours, net length, or processing capacity. Broad historical periods are context rather than daily deployment measurements. Richer source codes and reconciliation evidence remain internal and in the project repository.
 
 ## Catch is an observation process
 
@@ -24,9 +24,9 @@ The selected daily count source may also differ from the individual ring-event t
 
 ## Weather and historical covariates
 
-ERA5 supplies regional weather summaries for 00:00–08:00 East Africa Time; it does not directly observe mist at the lodge. The three `mist_probability_*` fields combine direct classifications where available with an ERA5-calibrated model elsewhere. Probabilities are estimates, not three independent observations.
+ERA5 supplies regional weather summaries for hourly timestamps 00:00 through 08:00 inclusive in East Africa Time; it does not directly observe mist at the lodge. The three `mist_modeled_*` fields combine direct classifications where available with an ERA5-calibrated model elsewhere. Probabilities are estimates, not three independent observations.
 
-DJP metadata, annual reports, diaries, and other operational sources differ in precision. Reviewed daily corrections are applied to canonical fields, while raw `djp_*` fields remain available. Absence of a report entry does not mean normal operation, no playback, or no rain. Specific dated corrections and unresolved conflicts are documented in the project repository.
+DJP metadata, annual reports, diaries, and other operational sources differ in precision. Reviewed daily corrections are applied to canonical fields, while decoded DJP source fields remain available in the internal table. Absence of a report entry does not mean normal operation, no playback, or no rain. Specific dated corrections and unresolved conflicts are documented in the project repository.
 
 ## Recoveries and source coverage
 

@@ -4,10 +4,12 @@ This folder holds regenerable delivery files. The folder README and both Zenodo 
 
 | Folder | Contents |
 | --- | --- |
-| `zenodo/` | Five dataset CSVs, including a narrow recovery view, a compact README, and a versioned data dictionary, ready to upload from this folder. The builder overwrites these files. |
+| `zenodo/` | Five dataset CSVs, including narrow recovery and daily-coverage views, a compact README, and a versioned data dictionary, ready to upload from this folder. The builder overwrites these files. |
 | `gbif/` | Darwin Core Archive and its event, occurrence, measurement, and metadata files. |
 
 ## Build and review
+
+The public `daily_coverage.csv` contains 25 calendar and covariate columns. Calculate bird totals from `daily_counts.csv`; use `count_status` to distinguish recorded zeros from missing dates. The internal `data/04_curated/daily_coverage.csv` retains all 45 fields for analyses, diagnostics, and source reconciliation.
 
 1. Rebuild the five curated tables using the [scripts README](../scripts/README.md) and review the [QA outputs](../outputs/README.md), especially ring-event corrections, coverage evidence, and recoveries.
 2. Run the dataset overview scripts in `scripts/exploration/dataset_overview/` and check their summaries and figures.
