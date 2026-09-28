@@ -32,6 +32,7 @@ get_data_paths <- function(project_dir = here::here()) {
     daily_counts_intermediate_dir = file.path(intermediate_dir, "daily_counts"),
     weather_intermediate_dir = file.path(intermediate_dir, "weather"),
     daily_context_intermediate_dir = file.path(intermediate_dir, "daily_context"),
-    mist_intermediate_dir = file.path(intermediate_dir, "mist_model")
+    mist_intermediate_dir = file.path(intermediate_dir, "mist_model"),
+    taxonomy_intermediate_dir = file.path(intermediate_dir, "taxonomy")
   )
 }

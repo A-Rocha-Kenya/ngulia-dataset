@@ -2,14 +2,17 @@
 
 ## Public dataset files
 
-The four public tables have canonical versions in `data/04_curated/`; the Zenodo `recoveries.csv` is a narrower view of its canonical version. The operations evidence register is maintained in the repository and is not part of the Zenodo deposit.
+The five public tables have canonical versions in `data/04_curated/`; the Zenodo `recoveries.csv` is a narrower view of its canonical version. The operations evidence register is maintained in the repository and is not part of the Zenodo deposit.
 
 | File                 | One row represents                                          | Main role                                                                                           |
 | -------------------- | ----------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| `taxonomy.csv` | One taxonomic concept or project special entry. | Shared names, classification, identifiers, project codes, and links. |
 | `ring_events.csv`    | One cleaned capture event for an individually marked bird.  | Canonical individual ringing observations, biometrics, and moult information.                       |
 | `daily_counts.csv`   | One species with a positive count on one date.              | Selected daily species totals for count-based analyses.                                             |
 | `daily_coverage.csv` | One calendar date within a ringing season window.           | Canonical daily catch, coverage/effort evidence, observed metadata, modeled mist, and ERA5 weather. |
 | `recoveries.csv`     | One distinct recovery or control movement involving Ngulia. | Curated movements between Ngulia and another ringing or recovery location.                          |
+
+`ring_events.csv`, `daily_counts.csv`, and `recoveries.csv` join to `taxonomy.csv` by `avibase_id`. Ring-event `subspecies_avibase_id` joins to the same table for a more precise identification. Common names remain in the observation files for readability; AFRING mappings, eBird codes, and classification are held in the taxonomy table. AFRING codes are used internally for source processing and QA; multiple codes can map to one taxonomic concept, so the lookup lists all mapped codes rather than preserving an original code per observation.
 
 `daily_counts.csv` and `daily_coverage.csv` join through `ringing_date` and `season`. The recovery table is independent of the ring-event identifiers because it was curated from separate historical recovery sources.
 
@@ -27,6 +30,46 @@ Empty CSV fields represent unavailable, unresolved, or inapplicable values; fiel
 
 ## Data dictionary
 
+### `taxonomy.csv`
+
+The intermediate reference contains the eBird/Clements 2025 integrated checklist and project mapping entries. AviList 2025 supplies missing names or classification for matching concepts and enriches BirdLife links and conservation information. Reviewed project labels take precedence; otherwise the main name fields use Clements, with AviList as a fallback. Checklist versions are recorded here rather than repeated in each row. The published table has one row per recorded `avibase_id`, including resolved subspecies and their species; Unknown birds are included. Species with no recorded ringing events, daily counts, or recoveries are omitted. Checklist updates do not reinterpret historical identifications.
+
+Unknown birds use `avibase-AF0D818A`, labelled `Unknown` with scientific name `Aves`.
+
+| Column | Type / unit | Description |
+| --- | --- | --- |
+| `avibase_id` | text identifier | Avibase concept ID and unique join key. |
+| `common_name` | text | Reviewed project label when supplied, otherwise the checklist English name or a source label. Scientific names or project codes provide readable fallbacks when an English name is unavailable. |
+| `scientific_name` | text | Scientific name or taxonomic formula; empty for unresolved mappings without a scientific label. |
+| `category` | controlled text | Clements category, such as `species`, `subspecies`, `group (monotypic)`, `group (polytypic)`, `hybrid`, or `spuh`; otherwise AviList rank, project `hybrid`, `unmapped`. |
+| `species_avibase_id` | text identifier | Species concept for a Clements species or its subspecies, groups, forms, and intergrades. A species refers to itself; other categories are empty. This relationship follows the selected checklist. |
+| `species_code` | text identifier | eBird/Clements 2025 code for this exact concept. Empty when the concept is absent from that checklist. |
+| `order` | text | Taxonomic order from Clements 2025. |
+| `family` | text | Taxonomic family from Clements 2025, including the English family label where supplied. |
+| `afring_numbers` | semicolon-separated codes | All AFRING or project codes mapped to this concept; negative codes identify project hybrid labels. Multiple codes can share one concept. |
+| `ngulia_numbers` | semicolon-separated codes | Historical Ngulia numeric codes mapped to this concept. |
+| `ngulia_latin_abbr` | semicolon-separated text | Ngulia historical scientific-name abbreviations from the species reference. |
+| `source_notes` | semicolon-separated text | Reviewed source-note tokens mapped to this subspecies concept. |
+| `birdlife_id` | text identifier | BirdLife identifier extracted from the matched AviList link, otherwise supplied by the reviewed crosswalk. |
+| `birdlife_url` | URL | BirdLife species page supplied by AviList or constructed from the reviewed identifier. |
+| `iucn_category` | text | Conservation category carried by AviList 2025; this is a release snapshot. |
+| `kbt_seq` | semicolon-separated identifiers | Kenya Bird Trends identifiers from the reviewed crosswalk. |
+| `abap_ids` | semicolon-separated identifiers | African Bird Atlas Project identifiers from the reviewed crosswalk. |
+| `n_ring_events` | integer count | Number of ringing events identifying this concept or a more precise concept belonging to this species. Each event counts once per concept. |
+| `n_ring_seasons` | integer count | Number of seasons represented by those ringing events. |
+| `first_ring_date` | ISO date | First ringing date for those events; empty when no ringing events identify this concept. |
+| `last_ring_date` | ISO date | Last ringing date for those events. |
+| `total_daily_count` | integer count | Sum of selected daily counts for this concept or its more precise concepts. This is independent of `n_ring_events`. |
+| `n_count_days` | integer count | Number of dates with a positive selected daily count for this concept. |
+| `n_count_seasons` | integer count | Number of seasons with a positive selected daily count for this concept. |
+| `first_count_date` | ISO date | First date with a positive selected daily count. |
+| `last_count_date` | ISO date | Last date with a positive selected daily count. |
+| `n_recoveries` | integer count | Number of curated movements identifying this concept or a more precise concept belonging to this species. Each movement counts once per concept. |
+
+Statistics include species rollups based on `species_avibase_id`. An explicitly identified subspecies contributes to its own row and its species row, so totals across taxonomy rows are not additive. Unidentified birds and ambiguous concepts are not assigned to a finer taxon. Zero statistics mean no records in that source.
+
+The reviewed mappings remain in `species_lookup.csv`, `species_reference.csv`, and `subspecies_lookup.csv`. Updating a checklist changes the enrichment table; changes to historical taxon assignments require an explicit mapping review. The taxonomy builder does not resolve old identifications automatically after splits or lumps.
+
 ### `ring_events.csv`
 
 | Column                      | Type / unit      | Description                                                                                                                                                                                                                              |
@@ -38,11 +81,9 @@ Empty CSV fields represent unavailable, unresolved, or inapplicable values; fiel
 | `ring_number` | text | Cleaned ring number. If the same number identifies separate capture histories, provisional `_01` and `_02` suffixes distinguish those histories; the suffix is not part of a physical inscription. `ring_note` flags the uncertainty. |
 | `ringer_name`               | text             | Full name mapped from the source `Init`, `Ringer`, or `Observer` value through `ringer_lookup.csv`; empty when the source had no ringer value or the entry could not be resolved. Raw initials and numeric identifiers are not exported. |
 | `retrap` | boolean | `TRUE` when the same provisional ring history has an earlier event or the source explicitly codes a retrap. `FALSE` indicates a new capture; empty indicates a code/history conflict. |
-| `afring_number`             | integer code     | AFRING taxon code. `0` represents an unresolved identity; negative project codes represent explicitly mapped hybrid labels.                                                                                                              |
-| `avibase_id`                | text identifier  | Avibase identifier for the resolved taxon; empty when unresolved.                                                                                                                                                                        |
-| `subspecies_avibase_id`     | text identifier  | Avibase identifier for an explicitly resolved subspecies or subspecies group derived from mapped note text; otherwise empty.                                                                                                             |
-| `common_name`               | text             | Project-standard English taxon name.                                                                                                                                                                                                     |
-| `species_code`              | text identifier  | eBird/Clements species or subspecies code associated with the Avibase identifier.                                                                                                                                                        |
+| `avibase_id` | text identifier | Avibase concept ID joining to `taxonomy.csv`; unknown birds use `avibase-AF0D818A`. |
+| `subspecies_avibase_id` | text identifier | Explicitly resolved subspecies or subspecies-group key joining to `taxonomy.csv`, assigned from reviewed source-note mappings; identifications reported at species level leave this empty. |
+| `common_name`               | text             | Readable taxon label copied from `taxonomy.csv`. |
 | `age`                       | integer code     | EURING age code `0`–`9`; definitions are given under **Age codes**.                                                                                                                                                                      |
 | `sex`                       | controlled text  | `M`, `F`, `M?`, or `F?`; empty when unknown or invalid.                                                                                                                                                                                  |
 | `wing`                      | millimetres      | Source wing-length measurement after numeric parsing and range validation.                                                                                                                                                               |
@@ -69,7 +110,7 @@ Feather-score meanings and source-specific interpretation are documented under *
 | --------------- | ------------- | ---------------------------------------------------------------------------------------- |
 | `ringing_date`  | ISO date      | Canonical ringing and analysis date.                                                     |
 | `season`        | integer year  | Year in which the October–January ringing season starts.                                 |
-| `avibase_id`    | text identifier | Avibase identifier for the resolved taxon, used to align daily summaries and ring-event-derived counts. |
+| `avibase_id` | text identifier | Avibase concept ID joining to `taxonomy.csv`; unknown birds use `avibase-AF0D818A`. |
 | `common_name`   | text          | Project-standard English taxon name.                                                     |
 | `n_records`     | integer count | Positive number of birds for the species and date from the season-selected count source. |
 
@@ -124,13 +165,13 @@ One row represents one movement encounter involving Ngulia. The Zenodo file is a
 
 | Column | Type / unit | Description |
 | --- | --- | --- |
-| `avibase_id` | text identifier | Standardized Avibase taxon identifier. |
+| `avibase_id` | text identifier | Avibase concept ID joining to `taxonomy.csv`; unknown birds use `avibase-AF0D818A`. |
 | `common_name` | text | Standardized English species name. |
 | `ring_scheme` | text | Ringing scheme or centre. |
 | `ring_number` | text identifier | Normalized ring inscription; leading zeroes matter. |
 | `ringing_age_code` | EURING code | Age code recorded at ringing; see **Age codes**. |
 | `direction` | controlled text | `from_ngulia` or `to_ngulia`, indicating which event took place at Ngulia. |
-| `ringing_date` | ISO date | Date of the original ringing event; empty when unknown. |
+| `ringing_date` | ISO or partial date | Date of the original ringing event at its recorded precision; empty when unknown. Partial dates are not completed with an invented month or day. |
 | `encounter_date_edtf` | EDTF date or interval | Encounter date at its documented precision: `YYYY-MM-DD`, `YYYY-MM`, `YYYY`, or a start/end interval such as `1995/1996`. Empty when the encounter date or defensible bounds are unknown. |
 | `report_date` | ISO or partial date | Date the recovery was reported, when documented separately. It may coexist with a partial encounter date and is never substituted for the date the bird was encountered. |
 | `other_site` | text | Locality at the non-Ngulia endpoint. |

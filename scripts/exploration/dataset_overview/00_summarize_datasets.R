@@ -61,24 +61,27 @@ ring_events <- read_csv(
   rename(ringNumber = ring_number) |>
   mutate(
     ringing_date = as.Date(ringing_date),
-    season = assign_season_from_date(ringing_date),
-    afring_number = clean_signed_number_key(afring_number)
+    season = assign_season_from_date(ringing_date)
   )
+
+taxonomy <- read_csv(file.path(curated_dir, "taxonomy.csv"), show_col_types = FALSE, col_types = cols(.default = col_character()))
+ring_events <- ring_events |>
+  left_join(taxonomy |> select(avibase_id, scientific_name, species_code, category), by = "avibase_id", relationship = "many-to-one")
 
 # Summarize by species ----------------------------------------------------
 
 species_counts_by_season <- ring_events |>
-  count(afring_number, season, name = "season_count")
+  count(avibase_id, season, name = "season_count")
 
 summary_by_species <- ring_events |>
   select(
-    afring_number,
+    avibase_id,
     any_of(c("scientific_name", "common_name", "species_code", "category"))
   ) |>
   distinct() |>
   left_join(
     species_counts_by_season |>
-      group_by(afring_number) |>
+      group_by(avibase_id) |>
       summarise(
         n_records = sum(season_count),
         first_season = min(season),
@@ -89,7 +92,7 @@ summary_by_species <- ring_events |>
         max_season_count = max(season_count),
         .groups = "drop"
       ),
-    by = "afring_number"
+    by = "avibase_id"
   ) |>
   mutate(pct_of_all_records = n_records / nrow(ring_events)) |>
   arrange(desc(n_records), common_name)
@@ -98,14 +101,14 @@ species_by_season_wide <- species_counts_by_season |>
   left_join(
     ring_events |>
       select(
-        afring_number,
+        avibase_id,
         any_of(c("scientific_name", "common_name"))
       ) |>
       distinct(),
-    by = "afring_number"
+    by = "avibase_id"
   ) |>
   select(
-    afring_number,
+    avibase_id,
     any_of(c("scientific_name", "common_name")),
     season,
     season_count
@@ -117,14 +120,14 @@ species_by_season_wide <- species_counts_by_season |>
     values_from = season_count,
     values_fill = 0
   ) |>
-  order_by_existing(c("common_name", "scientific_name", "afring_number"))
+  order_by_existing(c("common_name", "scientific_name", "avibase_id"))
 
 # Summarize by season -----------------------------------------------------
 
 summary_by_season <- ring_events |>
   group_by(season) |>
   summarise(
-    n_species = n_distinct(afring_number),
+    n_species = n_distinct(avibase_id),
     first_date = min(ringing_date, na.rm = TRUE),
     last_date = max(ringing_date, na.rm = TRUE),
     n_records = n(),
@@ -149,13 +152,13 @@ summary_by_day <- ring_events |>
   mutate(
     season = assign_season_from_date(ringing_date)
   ) |>
-  group_by(season, ringing_date, afring_number) |>
+  group_by(season, ringing_date, avibase_id) |>
   summarise(
     n_records = n(),
     n_unique_ring_numbers = n_distinct(ringNumber),
     .groups = "drop"
   ) |>
-  arrange(ringing_date, afring_number)
+  arrange(ringing_date, avibase_id)
 
 # Daily count summaries ---------------------------------------------------
 

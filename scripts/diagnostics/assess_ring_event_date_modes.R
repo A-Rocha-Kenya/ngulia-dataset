@@ -37,7 +37,7 @@ species_lookup_path <- file.path(config_dir, "species_lookup.csv")
 measurement_ranges_path <- file.path(config_dir, "measurement_ranges.csv")
 moult_specs_path <- file.path(config_dir, "moult_specs.csv")
 djp_daily_counts_path <- file.path(daily_counts_dir, "djp_daily_counts.csv")
-curated_ring_events_path <- file.path(paths$curated_dir, "ring_events.csv")
+taxonomy_path <- file.path(paths$taxonomy_intermediate_dir, "taxonomy_reference.csv")
 
 source(file.path(project_dir, "scripts", "helpers", "ring_event_helpers.R"))
 
@@ -144,8 +144,8 @@ djp_daily_counts <- read_csv(
     season = assign_season_from_date(date)
   )
 
-curated_ring_events <- read_csv(
-  curated_ring_events_path,
+taxonomy <- read_csv(
+  taxonomy_path,
   show_col_types = FALSE,
   col_types = cols(.default = col_character())
 )
@@ -159,23 +159,10 @@ file_seasons <- cleaned |>
   ) |>
   distinct()
 
-names_map <- cleaned |>
-  transmute(afring_number = as.character(afring_number)) |>
-  distinct() |>
-  left_join(
-    curated_ring_events |>
-      transmute(
-        afring_number = as.character(afring_number),
-        common_name
-      ) |>
-      distinct(),
-    by = "afring_number"
-  ) |>
-  filter(!is.na(common_name), common_name != "") |>
-  transmute(
-    afring_number,
-    common_name
-  )
+names_map <- load_species_reference(file.path(config_dir, "species_reference.csv")) |>
+  select(afring_number, avibase_id) |>
+  left_join(taxonomy |> select(avibase_id, common_name), by = "avibase_id") |>
+  select(afring_number, common_name)
 
 djp_with_file <- file_seasons |>
   inner_join(djp_daily_counts, by = "season", relationship = "many-to-many") |>

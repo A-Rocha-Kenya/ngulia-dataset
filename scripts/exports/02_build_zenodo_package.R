@@ -62,12 +62,6 @@ dictionary_lines <- c(
 )
 dictionary_lines <- dictionary_lines[!grepl("^Better dated records|^Detailed interpretation limits and analysis assumptions", dictionary_lines)]
 dictionary <- paste(dictionary_lines, collapse = "\n")
-dictionary <- sub(
-  "The first four files have canonical versions in `data/04_curated/`; the Zenodo `recoveries.csv` is a narrower view of its canonical version. The deposit also includes the source-linked operations register from `config/daily_covariates/`.",
-  "The four public tables have canonical versions in `data/04_curated/`; the recovery table is a narrower view of the repository's canonical file.",
-  dictionary,
-  fixed = TRUE
-)
 dictionary <- gsub("\\[([^]]+)\\]\\((?!https?://|#)[^)]+\\)", "\\1", dictionary, perl = TRUE)
 dictionary <- gsub("\n{3,}", "\n\n", dictionary)
 dictionary <- sub("\n+$", "", dictionary)
@@ -78,6 +72,7 @@ readme <- glue(
   "This archive contains {length(metadata$files)} UTF-8 CSV files with header rows. Empty cells mean a value is unavailable, unresolved, or inapplicable. `DATA_DICTIONARY.md` provides the field definitions, code meanings, and interpretation limits preserved with this dataset version.\n\n",
   "{publication_file_table(metadata$files)}\n\n",
   "## How the tables relate\n\n",
+  "- `taxonomy.csv` has one row per `avibase_id`. Join `ring_events.csv`, `daily_counts.csv`, and `recoveries.csv` by `avibase_id`; join an explicitly resolved ring-event subspecies through `subspecies_avibase_id` to the same table. Common names remain in the observation files for readability. eBird codes, classification, and source-specific observation totals are held in `taxonomy.csv`. Only recorded taxa are included; species totals include identified subspecies, so totals across taxonomy rows are not additive.\n",
   "- `ring_events.csv` records individual captures. `daily_counts.csv` gives positive species-day totals from DJP summaries for seasons 1969–2014 and from ring events for 2015–2023. The two tables need not have identical daily totals.\n",
   "- `daily_coverage.csv` has one row per date in the season calendar. Join it to `daily_counts.csv` by `ringing_date` and `season`. An absent species row or an empty daily total is not automatically a zero-catch day; use `daily_count_status` and `effort_status` to distinguish recorded zeros, missing counts, and operation evidence. `ringing_happened` reflects a positive catch after targeted swallow and martin catches are excluded.\n",
   "- `daily_coverage.csv` retains identifiers for reviewed operational evidence applied to its daily fields; the supporting source register is maintained in the project repository.\n",

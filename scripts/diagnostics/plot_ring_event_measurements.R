@@ -38,7 +38,7 @@ ring_events <- read_csv(
 ) |>
   mutate(
     common_name = na_if(common_name, ""),
-    species = coalesce(common_name, afring_number),
+    species = coalesce(common_name, avibase_id),
     has_time = str_detect(datetime, "T"),
     datetime_local = suppressWarnings(ymd_hms(datetime, tz = "Africa/Nairobi")),
     hour_of_day = hour(datetime_local) + minute(datetime_local) / 60,
@@ -51,11 +51,15 @@ ring_events <- read_csv(
 measurement_ranges <- load_measurement_ranges(measurement_ranges_path)
 global_ranges <- measurement_ranges |>
   filter(afring_number == "all")
+species_reference <- load_species_reference(file.path(config_dir, "species_reference.csv"))
 species_ranges <- measurement_ranges |>
-  filter(afring_number != "all")
+  filter(afring_number != "all") |>
+  left_join(species_reference |> select(afring_number, avibase_id), by = "afring_number") |>
+  group_by(avibase_id) |>
+  summarise(across(ends_with("_min"), min), across(ends_with("_max"), max), .groups = "drop")
 
 species_counts <- ring_events |>
-  count(afring_number, species, sort = TRUE)
+  count(avibase_id, species, sort = TRUE)
 
 if (nrow(species_counts) == 0) {
   cli_abort("No ring-event rows found for measurement diagnostics.")
@@ -218,7 +222,7 @@ plot_time_histogram <- function(data) {
 
 draw_species_page <- function(species_data, species_row, limits_row) {
   species_title <- glue::glue(
-    "{species_row$species} (AFRING {species_row$afring_number})"
+    "{species_row$species} ({species_row$avibase_id})"
   )
   species_subtitle <- glue::glue("Total records: {species_row$n}")
 
@@ -282,10 +286,10 @@ pdf(diagnostic_plot_path, width = 11, height = 8.5)
 for (i_species in seq_len(nrow(species_counts))) {
   species_row <- species_counts[i_species, ]
   species_data <- ring_events |>
-    filter(afring_number == species_row$afring_number)
+    filter(avibase_id == species_row$avibase_id)
 
   limits_row <- species_ranges |>
-    filter(afring_number == species_row$afring_number)
+    filter(avibase_id == species_row$avibase_id)
 
   if (nrow(limits_row) == 0) {
     limits_row <- tibble(

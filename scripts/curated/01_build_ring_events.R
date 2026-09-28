@@ -77,6 +77,7 @@ species_lookup <- load_species_lookup(species_lookup_path)
 species_reference <- load_species_reference(species_reference_path)
 ringer_lookup <- load_ringer_lookup(ringer_lookup_path)
 subspecies_lookup <- load_subspecies_lookup(subspecies_lookup_path)
+taxonomy <- read_csv(file.path(paths$taxonomy_intermediate_dir, "taxonomy_reference.csv"), show_col_types = FALSE, col_types = cols(.default = col_character()))
 measurement_ranges <- load_measurement_ranges(measurement_ranges_path)
 moult_specs <- load_moult_specs(moult_specs_path)
 
@@ -125,7 +126,8 @@ moult <- results$moult
 processed <- add_taxonomy(
   processed,
   species_reference,
-  subspecies_lookup
+  subspecies_lookup,
+  taxonomy
 ) |>
   select(
     ring_event_id,
@@ -135,11 +137,9 @@ processed <- add_taxonomy(
     ringNumber,
     ringer_name,
     retrap,
-    afring_number,
     avibase_id,
     subspecies_avibase_id,
     common_name,
-    species_code,
     age,
     sex,
     wing,

@@ -1,9 +1,10 @@
 # Data files
 
-This archive contains 4 UTF-8 CSV files with header rows. Empty cells mean a value is unavailable, unresolved, or inapplicable. `DATA_DICTIONARY.md` provides the field definitions, code meanings, and interpretation limits preserved with this dataset version.
+This archive contains 5 UTF-8 CSV files with header rows. Empty cells mean a value is unavailable, unresolved, or inapplicable. `DATA_DICTIONARY.md` provides the field definitions, code meanings, and interpretation limits preserved with this dataset version.
 
 | File | Description |
 | --- | --- |
+| `taxonomy.csv` | Recorded taxonomic concepts, with shared names, classification, external identifiers, and ringing, daily-count, and recovery statistics. |
 | `ring_events.csv` | One cleaned ringing event per row, including biometrics, mapped ringer name, and moult fields when recorded. |
 | `daily_counts.csv` | Positive species-day counts from the selected source. |
 | `daily_coverage.csv` | Canonical daily catch, coverage/effort evidence, observed metadata, calibrated mist probability, and ERA5 weather. |
@@ -11,6 +12,7 @@ This archive contains 4 UTF-8 CSV files with header rows. Empty cells mean a val
 
 ## How the tables relate
 
+- `taxonomy.csv` has one row per `avibase_id`. Join `ring_events.csv`, `daily_counts.csv`, and `recoveries.csv` by `avibase_id`; join an explicitly resolved ring-event subspecies through `subspecies_avibase_id` to the same table. Common names remain in the observation files for readability. eBird codes, classification, and source-specific observation totals are held in `taxonomy.csv`. Only recorded taxa are included; species totals include identified subspecies, so totals across taxonomy rows are not additive.
 - `ring_events.csv` records individual captures. `daily_counts.csv` gives positive species-day totals from DJP summaries for seasons 1969–2014 and from ring events for 2015–2023. The two tables need not have identical daily totals.
 - `daily_coverage.csv` has one row per date in the season calendar. Join it to `daily_counts.csv` by `ringing_date` and `season`. An absent species row or an empty daily total is not automatically a zero-catch day; use `daily_count_status` and `effort_status` to distinguish recorded zeros, missing counts, and operation evidence. `ringing_happened` reflects a positive catch after targeted swallow and martin catches are excluded.
 - `daily_coverage.csv` retains identifiers for reviewed operational evidence applied to its daily fields; the supporting source register is maintained in the project repository.

@@ -1,13 +1,19 @@
 library(dplyr)
 library(readr)
 library(stringr)
+source(here::here("scripts/helpers/data_paths.R"))
+paths <- get_data_paths()
 
 # Load data -----------------------------------------------------------------
 
 project_dir <- here::here()
 recoveries_path <- file.path(project_dir, "data", "04_curated", "recoveries.csv")
 
-recoveries <- read_csv(recoveries_path, show_col_types = FALSE)
+taxonomy <- read_csv(file.path(paths$taxonomy_intermediate_dir, "taxonomy_reference.csv"), show_col_types = FALSE, col_types = cols(.default = col_character()))
+recoveries <- read_csv(recoveries_path, show_col_types = FALSE, col_types = cols(.default = col_character())) |>
+  select(-common_name) |>
+  left_join(taxonomy |> select(avibase_id, common_name), by = "avibase_id", relationship = "many-to-one") |>
+  relocate(common_name, .after = avibase_id)
 
 # Standardize encounter classifications ------------------------------------
 

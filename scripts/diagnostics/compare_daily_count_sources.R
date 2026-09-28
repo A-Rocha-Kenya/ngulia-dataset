@@ -1,5 +1,6 @@
 library(dplyr)
 library(readr)
+library(stringr)
 library(tidyr)
 library(ggplot2)
 library(lubridate)
@@ -13,7 +14,7 @@ source(file.path(project_dir, "scripts", "helpers", "data_paths.R"))
 paths <- get_data_paths(project_dir)
 
 config_dir <- paths$ring_events_config_dir
-summary_dir <- file.path(paths$analysis_output_dir, "00_dataset_overview", "tables")
+summary_dir <- file.path(paths$exploration_output_dir, "dataset_overview", "tables")
 daily_counts_dir <- paths$daily_counts_intermediate_dir
 qa_dir <- file.path(daily_counts_dir, "qa")
 figure_dir <- ngulia_figure_dir(file.path(paths$qa_output_dir, "daily_counts", "figures"))
@@ -51,40 +52,18 @@ matrix_output_path <- file.path(
 
 cli_h1("Compare daily count sources")
 
+species_reference <- load_species_reference(species_reference_path) |>
+  select(afring_number, avibase_id)
+taxonomy <- read_csv(
+  file.path(paths$taxonomy_intermediate_dir, "taxonomy_reference.csv"),
+  show_col_types = FALSE, col_types = cols(.default = col_character())
+)
 ring_summary <- read_csv(ring_summary_path, show_col_types = FALSE) |>
-  transmute(
-    date = ringing_date,
-    afring_number,
-    ring_n_records = n_records
-  )
-
+  transmute(date = ringing_date, avibase_id, ring_n_records = n_records)
 djp_summary <- read_csv(djp_summary_path, show_col_types = FALSE) |>
-  transmute(
-    date,
-    afring_number,
-    djp_n_records = n_records
-  )
-
-species_reference <- read_csv(
-  species_reference_path,
-  show_col_types = FALSE,
-  col_types = cols(.default = col_character())
-) |>
-  transmute(
-    afring_number = suppressWarnings(as.numeric(afring_number)),
-    avibase_id = na_if(avibase_id, ""),
-    scientific_name = na_if(scientific_name, "")
-  ) |>
-  distinct(afring_number, .keep_all = TRUE)
-
-data("ebird_taxonomy", package = "auk")
-
-ebird_taxonomy_lookup <- ebird_taxonomy |>
-  transmute(
-    avibase_id = taxon_concept_id,
-    ebird_common_name = na_if(common_name, "")
-  ) |>
-  distinct(avibase_id, .keep_all = TRUE)
+  mutate(afring_number = clean_signed_number_key(as.character(afring_number))) |>
+  left_join(species_reference, by = "afring_number") |>
+  transmute(date, avibase_id, djp_n_records = n_records)
 
 # Build overlap comparison ------------------------------------------------
 
@@ -93,18 +72,18 @@ overlap_end <- min(max(ring_summary$date), max(djp_summary$date))
 
 ring_overlap <- ring_summary |>
   filter(date >= overlap_start, date <= overlap_end) |>
-  group_by(date, afring_number) |>
+  group_by(date, avibase_id) |>
   summarise(ring_n_records = sum(ring_n_records), .groups = "drop")
 
 djp_overlap <- djp_summary |>
   filter(date >= overlap_start, date <= overlap_end) |>
-  group_by(date, afring_number) |>
+  group_by(date, avibase_id) |>
   summarise(djp_n_records = sum(djp_n_records), .groups = "drop")
 
 comparison <- full_join(
   ring_overlap,
   djp_overlap,
-  by = c("date", "afring_number")
+  by = c("date", "avibase_id")
 ) |>
   mutate(
     ring_n_records = coalesce(ring_n_records, 0),
@@ -112,16 +91,9 @@ comparison <- full_join(
     diff_n_records = ring_n_records - djp_n_records,
     abs_diff_n_records = abs(diff_n_records)
   ) |>
-  left_join(species_reference, by = "afring_number") |>
-  left_join(ebird_taxonomy_lookup, by = "avibase_id") |>
+  left_join(taxonomy |> select(avibase_id, common_name, scientific_name), by = "avibase_id") |>
   mutate(
-    ebird_common_name = coalesce(ebird_common_name, ""),
-    scientific_name = coalesce(scientific_name, ""),
-    species = case_when(
-      ebird_common_name != "" ~ ebird_common_name,
-      scientific_name != "" ~ scientific_name,
-      TRUE ~ "Unknown species"
-    ),
+    species = coalesce(common_name, scientific_name, "Unknown species"),
     agreement = case_when(
       ring_n_records == djp_n_records ~ "exact",
       ring_n_records == 0 ~ "only_djp",
@@ -129,7 +101,7 @@ comparison <- full_join(
       TRUE ~ "different"
     )
   ) |>
-  arrange(date, desc(abs_diff_n_records), afring_number)
+  arrange(date, desc(abs_diff_n_records), avibase_id)
 
 comparison_export <- comparison |>
   select(date, species, diff_n_records) |>

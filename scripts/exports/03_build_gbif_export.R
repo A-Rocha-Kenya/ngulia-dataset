@@ -15,8 +15,7 @@ source(file.path(project_dir, "scripts", "helpers", "publication_metadata.R"))
 paths <- get_data_paths(project_dir)
 
 ring_events_path <- file.path(paths$zenodo_export_dir, "ring_events.csv")
-species_reference_path <- file.path(paths$ring_events_config_dir, "species_reference.csv")
-species_lookup_path <- file.path(paths$ring_events_config_dir, "species_lookup.csv")
+taxonomy_path <- file.path(paths$zenodo_export_dir, "taxonomy.csv")
 output_dir <- paths$gbif_export_dir
 
 metadata <- read_publication_metadata()
@@ -58,7 +57,6 @@ ring_events <- read_csv(
     datetime = col_character(),
     ring_number = col_character(),
     ringer_name = col_character(),
-    afring_number = col_integer(),
     age = col_integer(),
     sex = col_character(),
     wing = col_double(),
@@ -69,7 +67,6 @@ ring_events <- read_csv(
     ring_note = col_character(),
     avibase_id = col_character(),
     common_name = col_character(),
-    species_code = col_character(),
     subspecies_avibase_id = col_character()
   )
 ) |>
@@ -95,39 +92,17 @@ moult <- ring_events |>
   rename_with(~ str_replace(.x, "^t", "T"), matches("^t\\d+$")) |>
   rename_with(~ str_replace(.x, "^tail", "Tail"), matches("^tail\\d+$"))
 
-species_reference <- read_csv(
-  species_reference_path,
-  show_col_types = FALSE
-) |>
+species_taxonomy <- read_csv(taxonomy_path, show_col_types = FALSE, col_types = cols(.default = col_character())) |>
   transmute(
-    afring_number,
-    reference_common_name = na_if(common_name, ""),
-    reference_scientific_name = na_if(scientific_name, "")
-  )
-
-species_lookup <- read_csv(
-  species_lookup_path,
-  show_col_types = FALSE
-) |>
-  filter(input_type == "scientific_name") |>
-  transmute(
-    afring_number,
-    lookup_scientific_name = na_if(input_text, "Lost or destroyed ring")
-  ) |>
-  distinct(afring_number, .keep_all = TRUE)
-
-ebird_taxonomy <- auk::ebird_taxonomy |>
-  transmute(
-    avibase_id = taxon_concept_id,
+    avibase_id,
     taxonomy_scientific_name = scientific_name,
     taxonomy_common_name = common_name,
     taxonomy_category = category,
     taxonomy_order = order,
     taxonomy_family = family
-  ) |>
-  distinct(avibase_id, .keep_all = TRUE)
+  )
 
-subspecies_taxonomy <- ebird_taxonomy |>
+subspecies_taxonomy <- species_taxonomy |>
   rename(
     subspecies_avibase_id = avibase_id,
     subspecies_scientific_name = taxonomy_scientific_name,
@@ -140,17 +115,15 @@ subspecies_taxonomy <- ebird_taxonomy |>
 # Prepare identifiers and taxonomy ----------------------------------------
 
 ring_events <- ring_events |>
-  left_join(species_reference, by = "afring_number") |>
-  left_join(species_lookup, by = "afring_number") |>
-  left_join(ebird_taxonomy, by = "avibase_id") |>
-  left_join(subspecies_taxonomy, by = "subspecies_avibase_id") |>
+  left_join(species_taxonomy, by = "avibase_id", relationship = "many-to-one") |>
+  left_join(subspecies_taxonomy, by = "subspecies_avibase_id", relationship = "many-to-one") |>
   mutate(
     eventID = paste0("ngulia:ringing-day:", ringing_date),
     occurrenceID = paste0("ngulia:ring-event:", ring_event_id),
     organismID = paste0("ngulia:ring:", ringNumber),
     resolved_note_taxon = !is.na(subspecies_scientific_name),
     taxonID = case_when(
-      afring_number == 0L ~ NA_character_,
+      avibase_id == "avibase-AF0D818A" ~ NA_character_,
       resolved_note_taxon ~ subspecies_avibase_id,
       TRUE ~ avibase_id
     ),
@@ -163,31 +136,22 @@ ring_events <- ring_events |>
       )
     ),
     scientificName = if_else(
-      afring_number == 0L,
+      avibase_id == "avibase-AF0D818A",
       "Aves",
-      coalesce(
-        subspecies_scientific_name,
-        taxonomy_scientific_name,
-        na_if(reference_scientific_name, "Unknown"),
-        lookup_scientific_name
-      )
+      coalesce(subspecies_scientific_name, taxonomy_scientific_name)
     ),
     vernacularName = if_else(
-      afring_number == 0L,
+      avibase_id == "avibase-AF0D818A",
       NA_character_,
       coalesce(
         subspecies_common_name,
         common_name,
-        taxonomy_common_name,
-        reference_common_name
+        taxonomy_common_name
       )
     ),
     taxonRank = case_when(
-      afring_number == 0L ~ "class",
+      avibase_id == "avibase-AF0D818A" ~ "class",
       resolved_note_taxon & subspecies_category == "subspecies" ~ "subspecies",
-      resolved_note_taxon &
-        subspecies_category == "issf" &
-        !str_detect(subspecies_scientific_name, "\\[[^]]+ Group\\]") ~ "subspecies",
       resolved_note_taxon & subspecies_category == "species" ~ "species",
       resolved_note_taxon ~ NA_character_,
       taxonomy_category == "species" ~ "species",
@@ -197,7 +161,7 @@ ring_events <- ring_events |>
     family = coalesce(subspecies_family, taxonomy_family),
     identificationRemarks = case_when(
       !is.na(subspecies_avibase_id) & !resolved_note_taxon ~ paste0(
-        "Unresolved source subspecies Avibase ID: ",
+        "Unresolved source subspecies taxon ID: ",
         subspecies_avibase_id
       ),
       subspecies_category == "hybrid" | taxonomy_category == "hybrid" ~ paste0(

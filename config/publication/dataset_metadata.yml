@@ -5,7 +5,7 @@ dataset:
     Research data and reproducible processing workflows for the Ngulia ringing project.
   data_description: >-
     Curated ringing events, moult records, daily counts, daily coverage, modeled daily
-    covariates, daily effort evidence, and recovery records from the Ngulia
+    covariates, daily effort evidence, shared taxonomy, and recovery records from the Ngulia
     ringing project in Kenya.
   language: "eng"
   license: "CC-BY-4.0"
@@ -172,6 +172,8 @@ gbif:
   sampling_protocol: "Bird ringing"
 
 files:
+  - name: "taxonomy.csv"
+    description: "Recorded taxonomic concepts, with shared names, classification, external identifiers, and ringing, daily-count, and recovery statistics."
   - name: "ring_events.csv"
     description: "One cleaned ringing event per row, including biometrics, mapped ringer name, and moult fields when recorded."
   - name: "daily_counts.csv"

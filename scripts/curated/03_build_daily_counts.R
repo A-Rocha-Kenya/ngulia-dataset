@@ -21,11 +21,7 @@ species_reference_path <- file.path(
   ring_events_config_dir,
   "species_reference.csv"
 )
-taxonomy_path <- file.path(
-  paths$reference_dir,
-  "taxonomy",
-  "ebird_clements_2025_integrated_checklist.csv"
-)
+taxonomy_path <- file.path(paths$taxonomy_intermediate_dir, "taxonomy_reference.csv")
 daily_counts_output_path <- file.path(curated_dir, "daily_counts.csv")
 
 source(file.path(project_dir, "scripts", "helpers", "ring_event_helpers.R"))
@@ -45,47 +41,21 @@ daily_count_source_priority <- c(
 
 cli_h1("Build consolidated daily counts")
 
-taxonomy_reference <- if (file.exists(taxonomy_path)) {
-  read_csv(
-    taxonomy_path,
-    show_col_types = FALSE,
-    col_types = cols(.default = col_character())
-  ) |>
-    transmute(
-      avibase_id = `taxon concept ID`,
-      taxonomy_common_name = `English name`
-    ) |>
-    filter(!is.na(avibase_id), avibase_id != "") |>
-    distinct(avibase_id, .keep_all = TRUE)
-} else {
-  tibble(
-    avibase_id = character(),
-    taxonomy_common_name = character()
-  )
-}
-
+taxonomy <- read_csv(taxonomy_path, show_col_types = FALSE, col_types = cols(.default = col_character()))
 species_reference <- load_species_reference(species_reference_path) |>
-  left_join(taxonomy_reference, by = "avibase_id", na_matches = "never") |>
-  transmute(
-    afring_number,
-    avibase_id,
-    common_name = coalesce(na_if(common_name, ""), taxonomy_common_name)
-  ) |>
-  filter(!is.na(afring_number), afring_number != "") |>
-  distinct(afring_number, .keep_all = TRUE)
+  select(afring_number, avibase_id)
 
 ring_daily_counts <- read_csv(
   ring_events_path,
-  col_select = c(ringing_date, afring_number),
+  col_select = c(ringing_date, avibase_id),
   show_col_types = FALSE,
   col_types = cols(.default = col_character())
 ) |>
   mutate(
     date = as.Date(ringing_date),
-    season = assign_season_from_date(date),
-    afring_number = clean_signed_number_key(afring_number)
+    season = assign_season_from_date(date)
   ) |>
-  count(date, season, afring_number, name = "n_records") |>
+  count(date, season, avibase_id, name = "n_records") |>
   mutate(
     source = "ring_events",
     source_priority = unname(daily_count_source_priority[source])
@@ -103,7 +73,11 @@ djp_daily_counts <- read_csv(
     n_records = as.integer(n_records),
     source = "djp_daily_summary",
     source_priority = unname(daily_count_source_priority[source])
-  )
+  ) |>
+  distinct(date, afring_number, .keep_all = TRUE) |>
+  left_join(species_reference, by = "afring_number", relationship = "many-to-one") |>
+  group_by(date, season, avibase_id, source, source_priority) |>
+  summarise(n_records = sum(n_records), .groups = "drop")
 
 # Consolidate daily counts ------------------------------------------------
 
@@ -138,16 +112,9 @@ daily_counts <- bind_rows(ring_daily_counts, djp_daily_counts) |>
     by = "season"
   ) |>
   filter(source == selected_source) |>
-  arrange(date, afring_number, source_priority) |>
-  distinct(date, afring_number, .keep_all = TRUE) |>
-  left_join(species_reference, by = "afring_number") |>
-  select(
-    date,
-    season,
-    avibase_id,
-    common_name,
-    n_records
-  ) |>
+  left_join(taxonomy |> select(avibase_id, common_name), by = "avibase_id", na_matches = "never", relationship = "many-to-one") |>
+  group_by(date, season, avibase_id, common_name) |>
+  summarise(n_records = sum(n_records), .groups = "drop") |>
   arrange(date, avibase_id) |>
   rename(ringing_date = date)
 

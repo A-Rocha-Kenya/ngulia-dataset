@@ -449,160 +449,23 @@ build_subspecies_lookup <- function(processed_data, subspecies_lookup) {
     arrange(desc(n_records), afring_number, note)
 }
 
-add_taxonomy <- function(
-  processed_data,
-  species_reference,
-  subspecies_lookup,
-  taxonomy_columns = c(
-    "avibase_id",
-    "common_name",
-    "species_code",
-    "subspecies_avibase_id"
-  )
-) {
-  taxonomy_columns <- unique(taxonomy_columns)
-  species_output_columns <- taxonomy_columns[
-    !str_starts(taxonomy_columns, "subspecies_")
-  ]
-  subspecies_output_columns <- taxonomy_columns[str_starts(
-    taxonomy_columns,
-    "subspecies_"
-  )]
-  species_value_columns <- setdiff(species_output_columns, "avibase_id")
-  subspecies_value_columns <- setdiff(
-    str_remove(subspecies_output_columns, "^subspecies_"),
-    "avibase_id"
-  )
-  taxonomy_value_columns <- unique(c(
-    species_value_columns,
-    subspecies_value_columns
-  ))
-
-  ebird_reference <- auk::ebird_taxonomy |>
-    transmute(
-      avibase_id = taxon_concept_id,
-      !!!rlang::syms(taxonomy_value_columns)
-    ) |>
-    filter(!is.na(avibase_id)) |>
-    distinct(avibase_id, .keep_all = TRUE)
-
-  used_species_reference <- processed_data |>
-    distinct(afring_number) |>
-    left_join(species_reference, by = "afring_number")
-
-  missing_species_avibase_ids <- used_species_reference |>
-    filter(!is.na(avibase_id), !avibase_id %in% ebird_reference$avibase_id) |>
-    distinct(avibase_id) |>
-    pull(avibase_id) |>
-    sort()
-
-  if (length(missing_species_avibase_ids) > 0) {
-    cli_alert_warning("Species Avibase IDs not found in auk taxonomy:")
-    cli_ul(missing_species_avibase_ids)
-  }
-
-  used_subspecies_reference <- processed_data |>
-    mutate(note_token = str_split(coalesce(ring_note, ""), fixed("|"))) |>
-    unnest(note_token, keep_empty = TRUE) |>
-    mutate(note_token = str_squish(note_token)) |>
-    left_join(
-      subspecies_lookup |>
-        select(afring_number, note, subspecies_avibase_id),
-      by = c("afring_number", "note_token" = "note")
-    )
-
-  missing_subspecies_avibase_ids <- used_subspecies_reference |>
-    filter(
-      !is.na(subspecies_avibase_id),
-      !subspecies_avibase_id %in% ebird_reference$avibase_id
-    ) |>
-    distinct(subspecies_avibase_id) |>
-    pull(subspecies_avibase_id) |>
-    sort()
-
-  if (length(missing_subspecies_avibase_ids) > 0) {
-    cli_alert_warning("Subspecies Avibase IDs not found in auk taxonomy:")
-    cli_ul(missing_subspecies_avibase_ids)
-  }
-
-  species_reference_columns <- intersect(
-    species_value_columns,
-    names(species_reference)
-  )
-  species_column_map <- setNames(
-    lapply(species_output_columns, function(col) {
-      if (col == "avibase_id") {
-        return(rlang::expr(avibase_id))
-      }
-      if (col %in% species_reference_columns) {
-        return(
-          rlang::expr(coalesce(
-            !!rlang::sym(paste0(col, "_reference")),
-            !!rlang::sym(col)
-          ))
-        )
-      }
-      rlang::sym(col)
-    }),
-    species_output_columns
-  )
-
-  species_reference_mapped <- species_reference |>
-    rename_with(
-      ~ paste0(.x, "_reference"),
-      all_of(species_reference_columns)
-    ) |>
-    left_join(
-      ebird_reference,
-      by = "avibase_id",
-      na_matches = "never"
-    ) |>
-    transmute(
-      afring_number,
-      !!!species_column_map
-    )
-
-  subspecies_reference <- subspecies_lookup |>
-    left_join(
-      ebird_reference |>
-        rename(subspecies_avibase_id = avibase_id) |>
-        rename_with(~ paste0("subspecies_", .x), -subspecies_avibase_id),
-      by = "subspecies_avibase_id",
-      na_matches = "never"
-    )
-
+add_taxonomy <- function(processed_data, species_reference, subspecies_lookup, taxonomy) {
+  # Keep source-note matching separate from taxonomy enrichment.
   processed_subspecies <- processed_data |>
-    mutate(
-      row_id = row_number(),
-      note_token = str_split(coalesce(ring_note, ""), fixed("|"))
-    ) |>
+    mutate(row_id = row_number(), note_token = str_split(coalesce(ring_note, ""), fixed("|"))) |>
     unnest(note_token, keep_empty = TRUE) |>
     mutate(note_token = str_squish(note_token)) |>
     left_join(
-      subspecies_reference |>
-        select(
-          afring_number,
-          note,
-          any_of(subspecies_output_columns)
-        ),
-      by = c("afring_number", "note_token" = "note")
+      subspecies_lookup |> select(afring_number, note, subspecies_avibase_id),
+      by = c("afring_number", "note_token" = "note"), na_matches = "never"
     ) |>
     group_by(row_id) |>
-    summarise(
-      across(
-        all_of(subspecies_output_columns),
-        \(x) first(stats::na.omit(x), default = NA_character_)
-      ),
-      .groups = "drop"
-    )
+    summarise(subspecies_avibase_id = first(na.omit(subspecies_avibase_id), default = NA_character_), .groups = "drop")
 
   processed_data |>
     mutate(row_id = row_number()) |>
-    left_join(
-      species_reference_mapped,
-      by = "afring_number",
-      na_matches = "never"
-    ) |>
+    left_join(species_reference |> select(afring_number, avibase_id), by = "afring_number", na_matches = "never") |>
+    left_join(taxonomy |> select(avibase_id, common_name), by = "avibase_id", na_matches = "never", relationship = "many-to-one") |>
     left_join(processed_subspecies, by = "row_id") |>
     select(-row_id)
 }
